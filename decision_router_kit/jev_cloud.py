@@ -39,21 +39,27 @@ import urllib.request
 
 ENDPOINT = "https://openrouter.ai/api/alpha/decisions"
 DEFAULT_MODEL = "typesafe/jev-1.13"
-CONFIG_PATH = "/data/.openclaw/openclaw.json"
+# Repli optionnel : chemin (env OPENCLAW_CONFIG) d'un fichier de config JSON
+# contenant ``env.OPENROUTER_API_KEY`` — aucun chemin codé en dur.
+CONFIG_PATH = os.environ.get("OPENCLAW_CONFIG")
 
 
 def _api_key() -> str:
     key = os.environ.get("OPENROUTER_API_KEY")
     if key:
         return key
-    # Fallback pratique sur le VPS : lit la clé depuis la config OpenClaw.
-    try:
-        with open(CONFIG_PATH, encoding="utf-8") as fh:
-            return json.load(fh)["env"]["OPENROUTER_API_KEY"]
-    except Exception as exc:  # noqa: BLE001
-        raise SystemExit(
-            "OPENROUTER_API_KEY introuvable (env ou %s)" % CONFIG_PATH
-        ) from exc
+    if CONFIG_PATH:
+        try:
+            with open(CONFIG_PATH, encoding="utf-8") as fh:
+                return json.load(fh)["env"]["OPENROUTER_API_KEY"]
+        except Exception as exc:  # noqa: BLE001
+            raise SystemExit(
+                "OPENROUTER_API_KEY absent de %s" % CONFIG_PATH
+            ) from exc
+    raise SystemExit(
+        "OPENROUTER_API_KEY introuvable — définir la variable d'env, "
+        "ou OPENCLAW_CONFIG vers un JSON avec env.OPENROUTER_API_KEY."
+    )
 
 
 def _post(payload: dict, timeout: float = 40.0) -> dict:

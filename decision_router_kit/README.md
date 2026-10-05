@@ -60,7 +60,7 @@ Types de question : `choice` (criteria = record), `noul` (criteria = {true, fals
 
 ```bash
 # 1) JEV seul (aucune dépendance locale, juste une clé OpenRouter)
-export OPENROUTER_API_KEY=sk-or-...
+export OPENROUTER_API_KEY=sk-or-<votre-clé>   # ou copier .env.example → .env
 
 python3 jev_cloud.py --state "Email: URGENT, paiement bloqué" \
   --question "Quel est le type de ce message ?" \
