@@ -10,6 +10,7 @@ Thème : les **System One models** — des modèles qui ne génèrent pas de tex
 |---|---|
 | [`jev_adblock_openrouter/`](jev_adblock_openrouter/) | Extension Chrome anti-pub : le code trouve les candidats DOM, **Jev** juge « est-ce une pub ? » et supprime l'élément. Transport via **OpenRouter** (`POST /api/alpha/decisions`, modèle `typesafe/jev-1.13`). |
 | [`unclutter_openrouter/`](unclutter_openrouter/) | Extension navigateur (**unclutter**, fork WXT) : masque les pubs/promos d'une page via des règles de template réutilisables, validées par **Jev**. Build prébuildé `chrome-mv3/` fourni (load unpacked) + sources. Transport **OpenRouter**. |
+| [`decision_router_kit/`](decision_router_kit/) | Kit d'aiguillage : le même nœud de décision (état + question + options → décision typée + probabilités) exécuté par un **moteur local open-source** ($0, self-hosted) et par **Jev** via OpenRouter. Clients Python, démo scène, 3 workflows n8n importables. |
 
 ## Contexte
 

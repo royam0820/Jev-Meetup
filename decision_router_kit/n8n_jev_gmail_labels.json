@@ -1,0 +1,461 @@
+{
+  "name": "JEV — Tri emails Gmail (etiquettes)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": true,
+        "options": {}
+      },
+      "id": "7cf87038-bf25-45b3-9481-de4d6abb1dfa",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -380,
+        360
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const j = $json;\nconst subject = j.subject || (j.headers && j.headers.subject) || '(sans objet)';\nconst body = j.text || j.snippet || '';\nreturn [{ json: { state: `Objet: ${subject}\\n\\n${body}`, gmailId: j.id } }];\n"
+      },
+      "id": "4d1b23a6-bea6-4cbc-bef7-85795493f724",
+      "name": "Prepare state",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'typesafe/jev-1.13', state: $json.state, questions: { queue: { type: 'choice', instructions: 'Dans quel dossier classer cet email ?', criteria: { facturation: 'recu, facture, abonnement, paiement, renouvellement', securite: 'alerte de securite ou de connexion, avis lie au compte', newsletter: 'infolettre, nouveautes produit, promotion marketing', perso: 'message personnel ou professionnel attendant une reponse', spam: 'prospection non sollicitee / arnaque' } } } }) }}",
+        "options": {}
+      },
+      "id": "07fd357f-3e3a-4d36-8f5f-85b9b3c0652e",
+      "name": "JEV decide",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        100,
+        360
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "OpenRouter (Header Auth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r-revue",
+                    "leftValue": "={{ $json.answers.queue.confidence }}",
+                    "rightValue": 0.7,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "A revoir (humain)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r-fact",
+                    "leftValue": "={{ $json.answers.queue.choice }}",
+                    "rightValue": "facturation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Facturation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r-sec",
+                    "leftValue": "={{ $json.answers.queue.choice }}",
+                    "rightValue": "securite",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Securite"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r-news",
+                    "leftValue": "={{ $json.answers.queue.choice }}",
+                    "rightValue": "newsletter",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Newsletter"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r-perso",
+                    "leftValue": "={{ $json.answers.queue.choice }}",
+                    "rightValue": "perso",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Perso"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r-spam",
+                    "leftValue": "={{ $json.answers.queue.choice }}",
+                    "rightValue": "spam",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Spam_JEV"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2a82027a-07ae-4d76-9142-e5ae797c5f8c",
+      "name": "Router par bucket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        340,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": []
+      },
+      "id": "e2844d88-658a-4a80-bc64-eccc9275b1fe",
+      "name": "Etiquette - A revoir (humain)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        40
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": []
+      },
+      "id": "2e9938bf-9023-490d-a8b7-5c902f0df764",
+      "name": "Etiquette - Facturation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        200
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": []
+      },
+      "id": "ff07d9ed-9a0b-4e44-85bc-6975fd364d6f",
+      "name": "Etiquette - Securite",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        360
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": []
+      },
+      "id": "de32934e-02e6-4cc8-bc31-787a9057a00e",
+      "name": "Etiquette - Newsletter",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        520
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": []
+      },
+      "id": "84069c6a-cc7a-4f80-9bc9-d25ccfc3e1ca",
+      "name": "Etiquette - Perso",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        680
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": []
+      },
+      "id": "7e3c3fd9-1c59-4f40-9465-f557d02ef33f",
+      "name": "Etiquette - Spam_JEV",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        840
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "width": 470,
+        "height": 300,
+        "content": "## JEV -> Gmail (etiquettes)\n\nAvant de lancer :\n1. Connecter la credential **Gmail** (compte test) sur le trigger ET les 6 noeuds Gmail.\n2. Creer ces etiquettes dans Gmail : `Facturation`, `Securite`, `Newsletter`, `Perso`, `Spam_JEV`, `A revoir (humain)`.\n3. Dans chaque noeud Gmail : choisir l'etiquette correspondante.\n4. Seuil **0.70** (regle 1 du Switch).\n\nTest : envoyer un mail au compte -> releve en <= 1 min.\nAstuce : si les mails 'Promotions' ne remontent pas, ajouter un filtre au trigger."
+      },
+      "id": "2255e575-a7f1-428e-9286-6de2ba6a03a2",
+      "name": "Mode d'emploi",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare state": {
+      "main": [
+        [
+          {
+            "node": "JEV decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JEV decide": {
+      "main": [
+        [
+          {
+            "node": "Router par bucket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router par bucket": {
+      "main": [
+        [
+          {
+            "node": "Etiquette - A revoir (humain)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Facturation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Securite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Perso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Spam_JEV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

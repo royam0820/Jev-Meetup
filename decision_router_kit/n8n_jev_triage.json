@@ -1,0 +1,132 @@
+{
+  "name": "JEV — Triage email (OpenRouter / TypeSafe)",
+  "meta": {
+    "description": "Template meetup : un nœud de décision typée (JEV) branche un workflow n8n. Remplace YOUR_OPENROUTER_KEY par ta clé (Credentials recommandé). Le champ 'state' porte l'email ; JEV renvoie choice + probabilities + confidence ; l'IF route selon le seuil.",
+    "templateCredsSetupCompleted": false
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start-trigger",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-360, 0]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "state-field",
+              "name": "state",
+              "value": "Objet: URGENT - mon paiement est bloqué depuis 3 jours\\nDe: client@acme.fr\\n\\nImpossible de finaliser mon paiement, la page plante. C'est urgent.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare",
+      "name": "Prepare state",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-140, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer YOUR_OPENROUTER_KEY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'typesafe/jev-1.13', state: $json.state, questions: { queue: { type: 'choice', instructions: 'Quel est le type de ce message ?', criteria: { 'client urgent': \"client urgent / blocage / plainte\", 'demande admin': \"demande administrative interne\", spam: \"prospection non sollicitée\", newsletter: \"infolettre / actu\" } } } }) }}",
+        "options": {}
+      },
+      "id": "jev-decide",
+      "name": "JEV decide",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [100, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "id": "low-confidence",
+              "leftValue": "={{ $json.answers.queue.confidence }}",
+              "rightValue": 0.6,
+              "operator": { "type": "number", "operation": "lt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-review",
+      "name": "Confiance < 0.6 ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [340, 0]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            { "id": "r1", "name": "route", "value": "={{ $json.answers.queue.choice }}", "type": "string" },
+            { "id": "r2", "name": "confidence", "value": "={{ $json.answers.queue.confidence }}", "type": "number" },
+            { "id": "r3", "name": "action", "value": "à revoir par un humain", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "human-review",
+      "name": "→ Revue humaine",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [600, -120]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "route", "value": "={{ $json.answers.queue.choice }}", "type": "string" },
+            { "id": "a2", "name": "confidence", "value": "={{ $json.answers.queue.confidence }}", "type": "number" },
+            { "id": "a3", "name": "action", "value": "router automatiquement", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "auto-route",
+      "name": "→ Routage auto",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [600, 120]
+    }
+  ],
+  "connections": {
+    "Start": { "main": [[{ "node": "Prepare state", "type": "main", "index": 0 }]] },
+    "Prepare state": { "main": [[{ "node": "JEV decide", "type": "main", "index": 0 }]] },
+    "JEV decide": { "main": [[{ "node": "Confiance < 0.6 ?", "type": "main", "index": 0 }]] },
+    "Confiance < 0.6 ?": {
+      "main": [
+        [{ "node": "→ Revue humaine", "type": "main", "index": 0 }],
+        [{ "node": "→ Routage auto", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "tags": ["meetup", "jev", "decision"]
+}

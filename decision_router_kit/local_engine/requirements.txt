@@ -1,0 +1,6 @@
+# Moteur local — dépendances (Python 3.11+)
+fastapi>=0.115
+uvicorn>=0.30
+pydantic>=2.7
+transformers>=4.44
+torch>=2.3

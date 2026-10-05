@@ -1,0 +1,512 @@
+{
+  "name": "JEV — Tri emails Gmail (LOT, 1 appel)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a3a752fe-5e73-4ede-8624-489be1925818",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 10,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        },
+        "options": {
+          "simple": true
+        }
+      },
+      "id": "109bedad-18d6-4356-be44-53632237504d",
+      "name": "Gmail - 10 derniers",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -420,
+        360
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const items = $input.all();\nconst crit = {\n  facturation: 'recu, facture, abonnement, paiement',\n  securite: 'alerte de securite ou de connexion, avis de compte',\n  newsletter: 'infolettre, nouveautes produit, promotion marketing',\n  perso: 'message personnel ou professionnel attendant une reponse',\n  spam: 'prospection non sollicitee / arnaque'\n};\nconst index = [];\nconst questions = {};\nconst lines = [];\nitems.forEach((it, i) => {\n  const j = it.json;\n  const subj = j.subject || (j.headers && j.headers.subject) || '(sans objet)';\n  const snip = j.snippet || j.text || '';\n  const n = i + 1;\n  index.push({ key: 'e' + n, id: j.id, subject: subj });\n  lines.push('EMAIL #' + n + ' : ' + subj + ' \\u2014 ' + snip);\n  questions['e' + n] = { type: 'choice', instructions: 'Pour l EMAIL #' + n + ', dans quel dossier classer ?', criteria: crit };\n});\nreturn [{ json: { n: items.length, index: index,\n  payload: { model: 'typesafe/jev-1.13', state: lines.join('\\n\\n'), questions: questions } } }];"
+      },
+      "id": "cf1e23d9-4cf4-4f56-b658-c3d90d285800",
+      "name": "Empaqueter (1 appel)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      },
+      "id": "90d82ed7-acda-40b5-96cc-a98e1f907b89",
+      "name": "JEV decide (lot)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        60,
+        360
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "OpenRouter (Header Auth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const idx = $('Empaqueter (1 appel)').first().json.index;\nconst ans = $json.answers;\nreturn idx.map(e => {\n  const a = ans[e.key] || {};\n  const conf = a.confidence;\n  const label = (conf === undefined || conf < 0.7) ? 'A revoir (humain)' : a.choice;\n  return { json: { gmailId: e.id, subject: e.subject, choice: a.choice, confidence: conf, label: label } };\n});"
+      },
+      "id": "0b3f70b9-5fd6-4249-8174-bac73efacb5e",
+      "name": "Depaqueter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b-revue",
+                    "leftValue": "={{ $json.label }}",
+                    "rightValue": "A revoir (humain)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "A revoir (humain)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b-fact",
+                    "leftValue": "={{ $json.label }}",
+                    "rightValue": "facturation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Facturation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b-sec",
+                    "leftValue": "={{ $json.label }}",
+                    "rightValue": "securite",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Securite"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b-news",
+                    "leftValue": "={{ $json.label }}",
+                    "rightValue": "newsletter",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Newsletter"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b-perso",
+                    "leftValue": "={{ $json.label }}",
+                    "rightValue": "perso",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Perso"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b-spam",
+                    "leftValue": "={{ $json.label }}",
+                    "rightValue": "spam",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "Spam_JEV"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2dc1742f-923c-436a-8ace-9a48c51bfc64",
+      "name": "Router par bucket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        540,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $json.gmailId }}",
+        "labelIds": []
+      },
+      "id": "252a3295-34ef-4e8d-a496-441a056ebb4f",
+      "name": "Etiquette - A revoir (humain)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        40
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $json.gmailId }}",
+        "labelIds": []
+      },
+      "id": "858afa9b-0ffb-4d65-a37d-307776e61c2f",
+      "name": "Etiquette - Facturation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        200
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $json.gmailId }}",
+        "labelIds": []
+      },
+      "id": "15efec79-fbbc-4279-88ce-984ffd676635",
+      "name": "Etiquette - Securite",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        360
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $json.gmailId }}",
+        "labelIds": []
+      },
+      "id": "05ff6fdd-30cd-4606-a8d8-2a7d5c6c64be",
+      "name": "Etiquette - Newsletter",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        520
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $json.gmailId }}",
+        "labelIds": []
+      },
+      "id": "1d45ad46-dd3f-42f0-b6a4-cfd7e2657384",
+      "name": "Etiquette - Perso",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        680
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "addLabels",
+        "messageId": "={{ $json.gmailId }}",
+        "labelIds": []
+      },
+      "id": "4b93b19a-9ed4-4ae1-83bf-95a5f20dd908",
+      "name": "Etiquette - Spam_JEV",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        840
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail test account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "width": 480,
+        "height": 320,
+        "content": "## JEV -> Gmail (LOT : 1 appel pour N mails)\n\nClique **Execute workflow** : les 10 derniers mails de la boite sont classes\nen **UN SEUL appel** JEV (state = les 10 mails, questions = 10 choix).\n\nA configurer :\n1. Credential **Gmail** sur 'Gmail - 10 derniers' + les 6 noeuds Etiquette.\n2. Credential **OpenRouter** sur 'JEV decide (lot)'.\n3. Choisir l'etiquette dans chaque noeud Etiquette.\n4. Ajuster `limit` du noeud 'Gmail - 10 derniers' (10 par defaut).\n\nSeuil revue humaine : 0.70 (dans le noeud Depaqueter)."
+      },
+      "id": "ae7d5872-ef1d-46f9-8865-1c46d17406dc",
+      "name": "Mode d'emploi",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -40
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Gmail - 10 derniers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - 10 derniers": {
+      "main": [
+        [
+          {
+            "node": "Empaqueter (1 appel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empaqueter (1 appel)": {
+      "main": [
+        [
+          {
+            "node": "JEV decide (lot)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JEV decide (lot)": {
+      "main": [
+        [
+          {
+            "node": "Depaqueter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Depaqueter": {
+      "main": [
+        [
+          {
+            "node": "Router par bucket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router par bucket": {
+      "main": [
+        [
+          {
+            "node": "Etiquette - A revoir (humain)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Facturation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Securite",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Perso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Etiquette - Spam_JEV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
