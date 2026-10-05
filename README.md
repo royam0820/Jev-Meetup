@@ -14,6 +14,22 @@ Thème : les **System One models** — des modèles qui ne génèrent pas de tex
 | [`jev_judge_n8n/`](jev_judge_n8n/) | **Jev comme LLM-judge de correctness** : au lieu d'un LLM qui juge un autre LLM, Jev rend un verdict typé + probabilités calibrées. Workflows n8n (Jev seul, Jev vs LLM-judge, éval sur golden standard) + CSV. |
 | [`notebooks/`](notebooks/) | Notebooks Colab : [`jev_carwash_state_definition.ipynb`](notebooks/jev_carwash_state_definition.ipynb) — pourquoi la définition du `state` compte (type-safe ≠ world-safe). |
 
+## Démarrage rapide
+
+**Prérequis :** une clé **OpenRouter** (`sk-or-…`) — **BYOK**, chacun la sienne. Aucune clé n'est incluse dans ce repo.
+
+```bash
+git clone https://github.com/royam0820/Jev-Meetup.git
+cd Jev-Meetup
+```
+
+Puis selon la démo :
+
+- **Extensions (Chrome / Brave / Edge)** : `chrome://extensions` → *Developer mode* → **Load unpacked** → choisir `jev_adblock_openrouter/` (ou `unclutter_openrouter/chrome-mv3/`) → coller la clé `sk-or-…` dans la popup.
+- **Kit aiguillage** : `cd decision_router_kit && cp .env.example .env` (renseigner la clé) → `python3 demo_meetup.py --cloud`. Pour la version locale : `pip install -r local_engine/requirements.txt` puis lancer `local_engine/router_service.py`.
+- **Workflows n8n** : *Import from File* des `.json` → remplacer `Bearer YOUR_OPENROUTER_KEY` par une credential **Header Auth** (ou la vraie clé).
+- **Notebook** : ouvrir `notebooks/jev_carwash_state_definition.ipynb` dans Colab → lancer la cellule de config → coller la clé.
+
 ## Contexte
 
 - **Jev** sur OpenRouter : endpoint `POST https://openrouter.ai/api/alpha/decisions`, modèle `typesafe/jev-1.13`.
