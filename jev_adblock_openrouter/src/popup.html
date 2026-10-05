@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Jev Fun AdBlocker (OpenRouter fork)</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>🧹 Jev Fun AdBlocker</h1>
+    <label class="switch" title="On / off">
+      <input type="checkbox" id="enabled" />
+      <span></span>
+    </label>
+  </header>
+
+  <section class="stats">
+    <div><strong id="statPage">0</strong><span>on this page</span></div>
+    <div><strong id="statTotal">0</strong><span>total</span></div>
+  </section>
+
+  <section>
+    <label for="apiKey">OpenRouter API key (bring your own)</label>
+    <div class="row">
+      <input type="password" id="apiKey" placeholder="sk-or-…" autocomplete="off" spellcheck="false" />
+      <button id="testKey" title="Test the connection">Test</button>
+    </div>
+    <p class="hint" id="keyStatus"></p>
+  </section>
+
+  <section>
+    <label for="threshold">Threshold: P(ad) ≥ <span id="thresholdValue">0.70</span></label>
+    <input type="range" id="threshold" min="0.3" max="0.95" step="0.05" />
+  </section>
+
+  <section class="row">
+    <label>
+      Mode
+      <select id="mode">
+        <option value="remove">Remove</option>
+        <option value="highlight">Highlight only</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="row">
+    <label class="check" title="Pulse a red outline, then shrink and pop the ad away. Off = remove instantly."><input type="checkbox" id="animate" /> Pop animation</label>
+    <label class="check" title="Small toast in the corner after each batch"><input type="checkbox" id="toast" /> Toast</label>
+  </section>
+
+  <section class="row">
+    <button id="rescan">Rescan page</button>
+    <span class="hint" id="pageError"></span>
+  </section>
+
+  <p class="hint">Fun project, not a real ad blocker. Your key is stored in your browser and only sent to openrouter.ai.</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

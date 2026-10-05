@@ -1,0 +1,57 @@
+<!doctype html>
+<!--
+  Test harness: loads the fixture inside this page with a FAKE chrome API so the
+  content script can be exercised without installing the extension.
+  The fake "service worker" either
+    (a) proxies to a local relay (test/relay.mjs) that calls TypeSafe for real, or
+    (b) falls back to a heuristic when the relay is not running.
+  Open via:  python3 -m http.server 8787   →  http://localhost:8787/test/harness.html
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Harness</title>
+  <script>
+    window.__tsabLog = [];
+    const listeners = { runtime: [], storage: [] };
+    window.chrome = {
+      storage: {
+        sync: { get: async (d) => ({ ...d, apiKey: "harness", enabled: true, threshold: 0.7, mode: "remove", toast: true }) },
+        onChanged: { addListener: (fn) => listeners.storage.push(fn) },
+      },
+      runtime: {
+        onMessage: { addListener: (fn) => listeners.runtime.push(fn) },
+        async sendMessage(msg) {
+          window.__tsabLog.push(msg);
+          if (msg.type !== "judge") return { ok: true };
+          try {
+            const r = await fetch("http://localhost:8788/judge", {
+              method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(msg),
+            });
+            if (r.ok) { const j = await r.json(); j.via = "relay"; return j; }
+          } catch {}
+          // heuristic fallback
+          const probabilities = msg.candidates.map((c) =>
+            c.known_ad_network || c.label || c.standard_ad_size ? 0.95 : 0.1);
+          return { model: "heuristic", probabilities, latencyMs: 0, via: "heuristic" };
+        },
+      },
+    };
+    window.__tsabDispatch = (msg) => new Promise((res) => listeners.runtime.forEach((fn) => fn(msg, {}, res)));
+  </script>
+</head>
+<body>
+  <div id="mount"></div>
+  <script>
+    fetch("fixture.html").then((r) => r.text()).then((html) => {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      document.title = doc.title;
+      document.head.append(...doc.head.querySelectorAll("style"));
+      document.getElementById("mount").replaceWith(...doc.body.childNodes);
+      const s = document.createElement("script");
+      s.src = "../src/content.js";
+      document.body.appendChild(s);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Test-Seite – Nachrichten über Kaffee</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; color: #111; }
+    header { background: #222; color: #fff; padding: 12px 24px; display: flex; gap: 16px; }
+    header a { color: #fff; }
+    .layout { display: flex; gap: 24px; padding: 24px; }
+    main { flex: 1; max-width: 700px; }
+    .side { width: 300px; }
+    .box { border: 1px solid #ddd; padding: 12px; margin-bottom: 16px; }
+    .leaderboard { width: 728px; height: 90px; margin: 12px auto; }
+    .mrec { width: 300px; height: 250px; }
+    .label { font-size: 11px; color: #888; text-transform: uppercase; }
+    footer { background: #eee; padding: 16px 24px; margin-top: 32px; }
+    iframe { border: 0; }
+  </style>
+</head>
+<body>
+  <header id="site-header">
+    <strong>Kaffee-Kurier</strong>
+    <nav><a href="/">Start</a> <a href="/politik">Politik</a> <a href="/admin-panel">Admin</a></nav>
+  </header>
+
+  <!-- AD 1: classic leaderboard slot with ad-network iframe -->
+  <div class="ad-slot leaderboard" data-ad-unit="/1234/kk_leaderboard" data-google-query-id="CJ2x">
+    <iframe src="https://tpc.googlesyndication.com/safeframe/1-0-40/html/container.html" width="728" height="90" title="Advertisement"></iframe>
+  </div>
+
+  <div class="layout">
+    <main>
+      <article id="story">
+        <h1>Espresso-Preise steigen weiter: Was Röstereien jetzt planen</h1>
+        <p class="byline">Von Lena Bauer · 17. September 2026</p>
+        <p>Die Preise für Arabica-Bohnen haben in diesem Jahr ein neues Hoch erreicht. Kleine Röstereien in Hamburg und Berlin reagieren mit kleineren Packungen und neuen Mischungen, um Kunden nicht zu verlieren.</p>
+        <p>„Wir können die Kosten nicht mehr komplett auffangen", sagt Röster Tim Weber. Verbraucherschützer raten, Preise zu vergleichen und auf Angebote zu achten.</p>
+
+        <!-- AD 2: native "Anzeige" card in the article flow -->
+        <div class="box native-teaser">
+          <span class="label">Anzeige</span>
+          <h3>Der Vollautomat, der Baristas ersetzt – jetzt 40 % günstiger</h3>
+          <p>Nur noch heute: BrewMaster 3000 mit Gratis-Bohnen-Abo.</p>
+          <a href="https://shop.brewmaster-deals.example/landing?utm_source=kk">Jetzt sichern</a>
+        </div>
+
+        <p>Auch die Gastronomie spürt den Druck. Cafés in Innenstädten haben ihre Preise im Schnitt um 30 Cent angehoben, wie eine Umfrage des Verbands zeigt.</p>
+        <figure>
+          <img alt="Röster Tim Weber prüft Bohnen" width="400" height="250" />
+          <figcaption>Tim Weber in seiner Rösterei in Hamburg.</figcaption>
+        </figure>
+      </article>
+
+      <!-- NOT an ad: related articles from the same site -->
+      <section class="box related" id="related">
+        <h2>Mehr zum Thema</h2>
+        <ul>
+          <li><a href="/wirtschaft/kaffee-boerse">Kaffee an der Börse: Warum der Preis schwankt</a></li>
+          <li><a href="/ratgeber/kaffee-lagern">So lagern Sie Bohnen richtig</a></li>
+        </ul>
+      </section>
+
+      <!-- NOT an ad: newsletter box (self-promotion, not paid ad) -->
+      <section class="box newsletter">
+        <h3>Kaffee-Kurier Newsletter</h3>
+        <p>Jeden Morgen die wichtigsten News.</p>
+        <form><input placeholder="E-Mail" /><button type="button">Anmelden</button></form>
+      </section>
+
+      <!-- AD 3: "Sponsored" recommendation widget (Taboola-style) -->
+      <div class="box" id="recommendations" style="width:400px">
+        <div class="label">Sponsored</div>
+        <div class="rec"><a href="https://trk.taboola.com/click?x=1"><img alt="Frauen über 50 tragen jetzt diese Schuhe" width="120" height="80" /> Frauen über 50 tragen jetzt diese Schuhe</a></div>
+        <div class="rec"><a href="https://trk.taboola.com/click?x=2"><img alt="Zahnärzte hassen diesen Trick" width="120" height="80" /> Zahnärzte hassen diesen Trick</a></div>
+      </div>
+
+      <!-- Teaser grid like real news sites: two ads + two real teasers, each an <article> in an <li>. Page text is German on purpose: it exercises the German ad labels ("Anzeige", "Werbung"). -->
+      <ul class="teaser-grid" id="teaser-grid" style="list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <li><article class="teaser" id="teaser-real-1"><a href="/wohnen/smart-home"><figure style="margin:0;position:relative"><img alt="Haus bei Nacht" width="300" height="180" /></figure><h3>Smart Home: Lohnt sich das für Mieter?</h3></a></article></li>
+        <li><article class="teaser" id="teaser-ad-1"><a href="https://www.vodafone.de/deal?aff=1"><figure style="margin:0;position:relative"><span style="position:absolute;top:8px;left:8px;background:#ddd;padding:4px 8px">Anzeige</span><img alt="iPhone 18 Pro Max" width="300" height="180" /></figure><h3>iPhone 18 Pro Max für 1 Euro: So gut ist der Vodafone-Deal wirklich</h3></a></article></li>
+        <li><article class="teaser" id="teaser-real-2"><a href="/rezepte/souffle"><figure style="margin:0;position:relative"><img alt="Soufflé" width="300" height="180" /></figure><h3>Soufflé, das nicht zusammenfällt: das Rezept</h3></a></article></li>
+        <li><article class="teaser" id="teaser-ad-2"><a href="https://www.cyberport.de/samsung-galaxy-book5"><figure style="margin:0;position:relative"><span style="position:absolute;top:8px;left:8px;background:#ddd;padding:4px 8px">Anzeige</span><img alt="Samsung Galaxy Book5 Pro 360 – Immer dabei – Cyberport" width="300" height="180" /></figure><h3>Dieses Samsung-Notebook ist Ihr perfekter Begleiter für Studium und Beruf</h3></a></article></li>
+      </ul>
+
+      <!-- NOT an ad: comments -->
+      <section class="box" id="comments">
+        <h2>Kommentare (2)</h2>
+        <p><strong>Maria:</strong> Bei uns im Dorf kostet der Espresso jetzt 2,80 €.</p>
+        <p><strong>Jonas:</strong> Ich kaufe seit Jahren direkt bei der Rösterei.</p>
+      </section>
+    </main>
+
+    <aside class="side">
+      <!-- AD 4: 300x250 banner with affiliate link -->
+      <div class="box mrec" id="sidebar-banner">
+        <a href="https://amzn.to/3xyz"><img alt="Kaffeemühle Pro – Bestseller bei Amazon" width="280" height="200" /></a>
+        <small>Kaffeemühle Pro – 89,99 € · Prime</small>
+      </div>
+
+      <!-- AD 5: adsbygoogle ins -->
+      <ins class="adsbygoogle" style="display:block;width:300px;height:250px" data-ad-client="ca-pub-123" data-ad-slot="456"></ins>
+
+      <!-- NOT an ad: weather widget with "ad"-free class names -->
+      <div class="box header-addons" id="weather">
+        <h3>Wetter Hamburg</h3>
+        <p>18 °C, leicht bewölkt</p>
+      </div>
+
+      <!-- AD 6: casino banner with "Werbung" label -->
+      <div class="box" id="promo-casino">
+        <span class="label">Werbung</span>
+        <img alt="500 € Bonus – Lucky Spins Casino" width="280" height="150" />
+        <a href="https://luckyspins.example/bonus">Jetzt spielen</a>
+      </div>
+    </aside>
+  </div>
+
+  <footer id="site-footer">
+    <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a> · © 2026 Kaffee-Kurier
+  </footer>
+</body>
+</html>

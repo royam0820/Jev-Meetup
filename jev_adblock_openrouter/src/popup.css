@@ -1,0 +1,26 @@
+:root { color-scheme: light dark; font: 13px/1.4 system-ui, sans-serif; }
+body { width: 300px; margin: 0; padding: 12px 14px 14px; background: Canvas; color: CanvasText; }
+header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+h1 { font-size: 15px; margin: 0; }
+section { margin-top: 10px; }
+label { display: block; font-weight: 600; margin-bottom: 4px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row label { margin: 0; }
+input[type="password"], select { flex: 1; padding: 6px 8px; border-radius: 6px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: Field; color: FieldText; }
+input[type="range"] { width: 100%; }
+button { padding: 6px 10px; border-radius: 6px; border: 1px solid color-mix(in srgb, CanvasText 25%, transparent); background: ButtonFace; color: ButtonText; cursor: pointer; }
+button:hover { filter: brightness(1.08); }
+.hint { margin: 4px 0 0; font-size: 11.5px; opacity: .8; min-height: 1.2em; }
+.hint.error { color: #e11d48; opacity: 1; }
+.hint.ok { color: #16a34a; opacity: 1; }
+.check { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.stats { display: flex; gap: 8px; }
+.stats div { flex: 1; background: color-mix(in srgb, CanvasText 7%, transparent); border-radius: 8px; padding: 8px; text-align: center; }
+.stats strong { display: block; font-size: 20px; color: #e11d48; }
+.stats span { font-size: 11px; opacity: .8; }
+.switch { position: relative; width: 40px; height: 22px; margin: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch span { position: absolute; inset: 0; background: #94a3b8; border-radius: 22px; transition: .2s; }
+.switch span::before { content: ""; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .2s; }
+.switch input:checked + span { background: #e11d48; }
+.switch input:checked + span::before { transform: translateX(18px); }

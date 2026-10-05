@@ -1,0 +1,14 @@
+{
+  "name": "typesafe-fun-adblocker",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Fun Chrome extension: detects ads with TypeSafe AI (Jev) and removes their DOM elements. BYOK.",
+  "scripts": {
+    "live-check": "node test/live-check.mjs",
+    "relay": "node test/relay.mjs",
+    "serve": "python3 -m http.server 8787",
+    "icons": "python3 icons/make_icons.py"
+  }
+}
