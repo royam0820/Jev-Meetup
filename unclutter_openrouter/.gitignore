@@ -1,0 +1,10 @@
+node_modules/
+.wxt/
+.output/
+.env*
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+.DS_Store

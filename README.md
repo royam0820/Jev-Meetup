@@ -9,6 +9,7 @@ Thème : les **System One models** — des modèles qui ne génèrent pas de tex
 | Démo | Description |
 |---|---|
 | [`jev_adblock_openrouter/`](jev_adblock_openrouter/) | Extension Chrome anti-pub : le code trouve les candidats DOM, **Jev** juge « est-ce une pub ? » et supprime l'élément. Transport via **OpenRouter** (`POST /api/alpha/decisions`, modèle `typesafe/jev-1.13`). |
+| [`unclutter_openrouter/`](unclutter_openrouter/) | Extension navigateur (**unclutter**, fork WXT) : masque les pubs/promos d'une page via des règles de template réutilisables, validées par **Jev**. Build prébuildé `chrome-mv3/` fourni (load unpacked) + sources. Transport **OpenRouter**. |
 
 ## Contexte
 

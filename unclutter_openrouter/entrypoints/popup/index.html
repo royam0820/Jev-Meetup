@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unclutter</title>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <img src="/icon/32.png" width="28" height="28" alt="" />
+        <h1>Unclutter</h1>
+      </div>
+      <label class="switch" title="Enable everywhere"
+        ><input id="global" type="checkbox" aria-label="Enable Unclutter everywhere" /><span></span
+      ></label>
+    </header>
+    <main>
+      <div class="mode-row">
+        <label for="analysis-mode">Analysis</label
+        ><select id="analysis-mode">
+          <option value="manual">Manual</option>
+          <option value="auto">On page visit</option>
+        </select>
+      </div>
+      <p id="auto-disclosure" class="disclosure" hidden>
+        On page visit automatically sends element snippets to your selected provider for new
+        templates. Snippets may contain personal data. API charges apply. Cached templates are
+        reused.
+      </p>
+      <section id="page" class="page-card">
+        <div class="site-line">
+          <strong id="host">Current page</strong><span id="status" class="badge">Loading</span>
+        </div>
+        <p id="template" class="muted"></p>
+        <div class="metrics">
+          <strong id="hidden">—</strong><span>elements hidden</span
+          ><span id="saved" class="muted"></span>
+        </div>
+        <div class="actions">
+          <button id="analyze" class="primary" disabled>Analyze page</button
+          ><button id="toggle" class="secondary" hidden>Pause</button>
+        </div>
+        <p id="disclosure" class="disclosure">
+          Analyze sends up to 60 element descriptions to your selected provider. Main article text
+          and form values are excluded; snippets may still contain personal data.
+        </p>
+      </section>
+      <p id="error" role="alert" hidden></p>
+      <p id="notice" role="status" hidden></p>
+      <details id="rules-section" hidden>
+        <summary><span>Hidden elements</span><span id="rule-count"></span></summary>
+        <div id="rules"></div>
+        <button id="forget" class="text-button danger">Forget this page type</button>
+      </details>
+      <details id="connection">
+        <summary><span>Connection</span><span id="key-status">API key required</span></summary>
+        <form id="key-form">
+          <label for="provider">Provider</label
+          ><select id="provider">
+            <option value="vercel">Vercel AI Gateway</option>
+            <option value="typesafe">TypeSafe AI</option>
+            <option value="openrouter">OpenRouter (Jev)</option>
+          </select>
+          <label for="api-key">API key</label>
+          <div class="key-row">
+            <input
+              id="api-key"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Paste your provider API key"
+            /><button type="submit" class="secondary">Save</button>
+          </div>
+          <p class="disclosure">
+            Stored on this device in extension storage, not encrypted or synced. Never sent to
+            websites.
+          </p>
+          <button id="remove-key" type="button" class="text-button" hidden>Remove saved key</button>
+        </form>
+      </details>
+    </main>
+    <footer>
+      <span>Jev</span><span id="mode-hint">Manual analysis · Cached rules apply automatically</span>
+    </footer>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Page de test – L'Écho du Web</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        color: #111;
+      }
+      header {
+        background: #0d1b2a;
+        color: #fff;
+        padding: 12px 24px;
+        display: flex;
+        gap: 16px;
+      }
+      header a {
+        color: #fff;
+      }
+      .layout {
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+      }
+      main {
+        flex: 1;
+        max-width: 700px;
+      }
+      .side {
+        width: 300px;
+      }
+      .box {
+        border: 1px solid #ddd;
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+      .leaderboard {
+        width: 728px;
+        height: 90px;
+        margin: 12px auto;
+      }
+      .mrec {
+        width: 300px;
+        height: 250px;
+      }
+      .label {
+        font-size: 11px;
+        color: #888;
+        text-transform: uppercase;
+      }
+      footer {
+        background: #eee;
+        padding: 16px 24px;
+        margin-top: 32px;
+      }
+      iframe {
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header id="site-header">
+      <strong>L'Écho du Web</strong>
+      <nav>
+        <a href="/">Accueil</a> <a href="/societe">Société</a> <a href="/admin-panel">Admin</a>
+      </nav>
+    </header>
+
+    <!-- PUB 1 : bandeau classique (leaderboard) avec iframe réseau pub -->
+    <div
+      class="ad-slot leaderboard"
+      data-ad-unit="/1234/ew_leaderboard"
+      data-google-query-id="CJ2x"
+    >
+      <iframe
+        src="https://tpc.googlesyndication.com/safeframe/1-0-40/html/container.html"
+        width="728"
+        height="90"
+        title="Publicité"
+      ></iframe>
+    </div>
+
+    <div class="layout">
+      <main>
+        <article id="story">
+          <h1>Le prix du café continue de grimper : ce que préparent les torréfacteurs</h1>
+          <p class="byline">Par Claire Dubois · 24 septembre 2026</p>
+          <p>
+            Le prix des grains d'arabica a atteint un nouveau sommet cette année. Les petits
+            torréfacteurs de Lyon et Nantes réagissent avec des paquets plus petits et de nouveaux
+            mélanges, pour ne pas perdre leurs clients.
+          </p>
+          <p>
+            « Nous ne pouvons plus absorber la hausse des coûts », explique le torréfacteur Marc
+            Lefèvre. Les associations de consommateurs conseillent de comparer les prix et de
+            guetter les promotions.
+          </p>
+
+          <!-- PUB 2 : carte native « Publicité » insérée dans l'article -->
+          <div class="box native-teaser">
+            <span class="label">Publicité</span>
+            <h3>La machine à café qui remplace les baristas – 40 % de remise aujourd'hui</h3>
+            <p>Offre du jour : Caféo 3000 avec abonnement aux grains offert.</p>
+            <a href="https://shop.cafeo-deals.example/landing?utm_source=ew">J'en profite</a>
+          </div>
+
+          <p>
+            La restauration ressent aussi la pression. Les cafés du centre-ville ont augmenté leurs
+            prix d'environ 30 centimes en moyenne, selon une enquête du syndicat du secteur.
+          </p>
+          <figure>
+            <img alt="Le torréfacteur Marc Lefèvre contrôle les grains" width="400" height="250" />
+            <figcaption>Marc Lefèvre dans sa torréfaction à Lyon.</figcaption>
+          </figure>
+        </article>
+
+        <!-- PAS une pub : articles liés du même site -->
+        <section class="box related" id="related">
+          <h2>À lire aussi</h2>
+          <ul>
+            <li><a href="/economie/cours-cafe">Le café en bourse : pourquoi le prix varie</a></li>
+            <li><a href="/pratique/conserver-cafe">Comment bien conserver ses grains</a></li>
+          </ul>
+        </section>
+
+        <!-- PAS une pub : encart newsletter (auto-promotion, pas de la pub payante) -->
+        <section class="box newsletter">
+          <h3>Newsletter L'Écho du Web</h3>
+          <p>Chaque matin, l'essentiel de l'actu.</p>
+          <form><input placeholder="E-mail" /><button type="button">S'inscrire</button></form>
+        </section>
+
+        <!-- PUB 3 : widget de recommandations « Sponsorisé » (style Taboola) -->
+        <div class="box sponsored-widget" id="recommendations" style="width: 400px">
+          <div class="label">Sponsorisé</div>
+          <div class="rec">
+            <a href="https://trk.taboola.com/click?x=1"
+              ><img
+                alt="Les femmes de plus de 50 ans portent désormais ces chaussures"
+                width="120"
+                height="80"
+              />
+              Les femmes de plus de 50 ans portent désormais ces chaussures</a
+            >
+          </div>
+          <div class="rec">
+            <a href="https://trk.taboola.com/click?x=2"
+              ><img alt="Les dentistes détestent cette astuce" width="120" height="80" /> Les
+              dentistes détestent cette astuce</a
+            >
+          </div>
+        </div>
+
+        <!-- Grille de brèves comme sur les vrais sites d'actu : deux pubs + deux vraies brèves, chacune dans un <li>. -->
+        <ul
+          class="teaser-grid"
+          id="teaser-grid"
+          style="
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+          "
+        >
+          <li>
+            <article class="teaser" id="teaser-real-1">
+              <a href="/logement/domotique"
+                ><figure style="margin: 0; position: relative">
+                  <img alt="Maison de nuit" width="300" height="180" />
+                </figure>
+                <h3>Domotique : est-ce rentable quand on est locataire ?</h3></a
+              >
+            </article>
+          </li>
+          <li>
+            <article class="teaser" id="teaser-ad-1">
+              <a href="https://www.orange.fr/forfait?aff=1"
+                ><figure style="margin: 0; position: relative">
+                  <span
+                    style="
+                      position: absolute;
+                      top: 8px;
+                      left: 8px;
+                      background: #ddd;
+                      padding: 4px 8px;
+                    "
+                    >Publicité</span
+                  ><img alt="Forfait mobile 200 Go" width="300" height="180" />
+                </figure>
+                <h3>Forfait mobile 200 Go à 9,99 € : l'offre qui change tout ce mois-ci</h3></a
+              >
+            </article>
+          </li>
+          <li>
+            <article class="teaser" id="teaser-real-2">
+              <a href="/cuisine/souffle"
+                ><figure style="margin: 0; position: relative">
+                  <img alt="Soufflé" width="300" height="180" />
+                </figure>
+                <h3>Le soufflé qui ne retombe pas : la recette</h3></a
+              >
+            </article>
+          </li>
+          <li>
+            <article class="teaser" id="teaser-ad-2">
+              <a href="https://www.fnac.com/ordinateur-portable"
+                ><figure style="margin: 0; position: relative">
+                  <span
+                    style="
+                      position: absolute;
+                      top: 8px;
+                      left: 8px;
+                      background: #ddd;
+                      padding: 4px 8px;
+                    "
+                    >Publicité</span
+                  ><img alt="PC portable convertible" width="300" height="180" />
+                </figure>
+                <h3>Cet ordinateur portable est le compagnon idéal des étudiants</h3></a
+              >
+            </article>
+          </li>
+        </ul>
+
+        <!-- PAS une pub : commentaires -->
+        <section class="box" id="comments">
+          <h2>Commentaires (2)</h2>
+          <p><strong>Marie :</strong> Chez nous, l'expresso est passé à 2,80 €.</p>
+          <p>
+            <strong>Jonas :</strong> J'achète directement chez le torréfacteur depuis des années.
+          </p>
+        </section>
+      </main>
+
+      <aside class="side">
+        <!-- PUB 4 : bandeau 300x250 avec lien affilié -->
+        <div class="box mrec" id="sidebar-banner">
+          <a href="https://amzn.to/3xyz"
+            ><img alt="Moulin à café Pro – best-seller sur Amazon" width="280" height="200"
+          /></a>
+          <small>Moulin à café Pro – 89,99 € · Livraison offerte</small>
+        </div>
+
+        <!-- PUB 5 : bloc adsbygoogle -->
+        <ins
+          class="adsbygoogle"
+          style="display: block; width: 300px; height: 250px"
+          data-ad-client="ca-pub-123"
+          data-ad-slot="456"
+        ></ins>
+
+        <!-- PAS une pub : widget météo (noms de classes sans « ad ») -->
+        <div class="box header-addons" id="weather">
+          <h3>Météo Paris</h3>
+          <p>18 °C, légèrement nuageux</p>
+        </div>
+
+        <!-- PUB 6 : bannière casino avec libellé « Annonce » -->
+        <div class="box" id="promo-casino">
+          <span class="label">Annonce</span>
+          <img alt="500 € de bonus – Casino Lucky Spins" width="280" height="150" />
+          <a href="https://luckyspins.example/bonus">Je joue</a>
+        </div>
+
+        <!-- PUB 7 : encart « Partenariat » -->
+        <div class="box" id="partner-box" style="border-color: #c9a84c">
+          <span class="label">Partenariat</span>
+          <p><strong>Formation en ligne : apprenez le code en 30 jours</strong></p>
+          <a href="https://example-ecole.example/inscription?aff=ew">Découvrir le programme</a>
+        </div>
+      </aside>
+    </div>
+
+    <footer id="site-footer">
+      <a href="/mentions-legales">Mentions légales</a> ·
+      <a href="/confidentialite">Confidentialité</a> · © 2026 L'Écho du Web
+    </footer>
+  </body>
+</html>

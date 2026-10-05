@@ -1,0 +1,383 @@
+:root {
+  font-family:
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #202824;
+  background: #f6f7f3;
+  font-size: 13px;
+  color-scheme: light;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  width: 380px;
+  min-height: 240px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 16px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+h1 {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.6px;
+  margin: 0;
+}
+main {
+  padding: 0 16px;
+}
+.mode-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.mode-row label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.mode-row select {
+  margin-left: auto;
+  width: 190px;
+}
+#auto-disclosure {
+  margin: 0 0 14px;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 600;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #187b61;
+  outline-offset: 3px;
+}
+.page-card {
+  background: #fff;
+  border: 1px solid #e1e6dd;
+  border-radius: 13px;
+  padding: 16px;
+}
+.site-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.site-line strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.badge {
+  border-radius: 5px;
+  padding: 4px 6px;
+  background: #edf0e9;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.badge.active {
+  background: #e0f3e9;
+  color: #14684f;
+}
+.badge.busy {
+  background: #fff1d7;
+  color: #915900;
+}
+.muted {
+  color: #788077;
+}
+#template {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  margin: 9px 0 0;
+}
+.metrics {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 24px 0 20px;
+}
+.metrics > strong {
+  font-size: 34px;
+  font-weight: 550;
+  letter-spacing: -1.5px;
+}
+.metrics > span {
+  font-size: 11px;
+}
+.metrics #saved {
+  margin-left: auto;
+  font-size: 10px;
+}
+.actions {
+  display: flex;
+  gap: 7px;
+}
+.primary {
+  background: #206c53;
+  color: #fff;
+  flex: 1;
+}
+.primary:hover:not(:disabled) {
+  background: #15533e;
+}
+.secondary {
+  background: #edf0e9;
+  color: #39443b;
+}
+.secondary:hover {
+  background: #e3e8df;
+}
+.disclosure {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #788077;
+  margin: 13px 0 0;
+}
+.switch {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 20px;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+.switch span {
+  display: block;
+  background: #c5cdc2;
+  border-radius: 20px;
+  width: 34px;
+  height: 20px;
+  transition: background 0.15s;
+}
+.switch span:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  left: 3px;
+  top: 3px;
+  transition: transform 0.15s;
+}
+.switch input:checked + span {
+  background: #206c53;
+}
+.switch input:checked + span:after {
+  transform: translateX(14px);
+}
+.switch input:focus-visible + span {
+  outline: 2px solid #187b61;
+  outline-offset: 3px;
+}
+details {
+  border-bottom: 1px solid #e1e6dd;
+  padding: 14px 0;
+}
+summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+summary > span:last-child {
+  color: #788077;
+  font-size: 10px;
+  font-weight: 400;
+}
+summary > span:first-child:before {
+  content: "›";
+  display: inline-block;
+  margin-right: 8px;
+  color: #788077;
+}
+details[open] summary > span:first-child:before {
+  transform: rotate(90deg);
+}
+form {
+  margin-top: 16px;
+}
+form > label {
+  display: block;
+  font-size: 11px;
+  margin: 12px 0 6px;
+  color: #586253;
+}
+select,
+input[type="password"] {
+  width: 100%;
+  border: 1px solid #d9e0d4;
+  border-radius: 7px;
+  background: #fff;
+  padding: 9px;
+  color: #263127;
+  min-width: 0;
+}
+.key-row {
+  display: flex;
+  gap: 7px;
+}
+.key-row button {
+  padding: 9px 12px;
+}
+.text-button {
+  background: none;
+  padding: 0;
+  margin-top: 14px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #687063;
+}
+.danger {
+  color: #ad5147;
+}
+#error {
+  color: #9c3832;
+  background: #fcebe8;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+#notice {
+  font-size: 11px;
+  color: #206c53;
+  padding: 0 4px;
+}
+#rules {
+  max-height: 240px;
+  overflow: auto;
+  padding-top: 9px;
+}
+.rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid #edf0e9;
+}
+.rule input {
+  accent-color: #206c53;
+}
+.rule div {
+  min-width: 0;
+}
+.rule strong {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.rule code {
+  display: block;
+  font-size: 10px;
+  color: #788077;
+  overflow-wrap: anywhere;
+  margin-top: 3px;
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 20px;
+  color: #7d8578;
+  font-size: 9px;
+}
+footer > span:first-child {
+  font-weight: 700;
+  color: #59664e;
+}
+[hidden] {
+  display: none !important;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    background: #191e1a;
+    color: #e0e6db;
+  }
+  .page-card {
+    background: #222a23;
+    border-color: #354032;
+  }
+  .muted,
+  .disclosure,
+  summary > span:last-child {
+    color: #a0aa97;
+  }
+  .secondary,
+  .badge {
+    background: #343e31;
+    color: #d5dece;
+  }
+  .secondary:hover {
+    background: #43503e;
+  }
+  details {
+    border-color: #354032;
+  }
+  select,
+  input[type="password"] {
+    background: #222a23;
+    color: #e0e6db;
+    border-color: #45513f;
+  }
+  form > label {
+    color: #b9c4b0;
+  }
+  .rule {
+    border-color: #354032;
+  }
+  .rule code {
+    color: #a0aa97;
+  }
+  #error {
+    background: #442922;
+    color: #ffc2b8;
+  }
+  #notice {
+    color: #90d5ae;
+  }
+}
