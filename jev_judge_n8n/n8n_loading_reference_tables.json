@@ -123,7 +123,7 @@
       "name": "QA_Evaluations Sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "ugbZBDBLOh173bWU",
+          "id": "REPLACE_ME",
           "name": "Google Sheets account"
         }
       }

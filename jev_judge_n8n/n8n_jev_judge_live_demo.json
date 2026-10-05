@@ -93,7 +93,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer YOUR_O…_KEY"
+              "value": "Bearer YOUR_OPENROUTER_KEY"
             },
             {
               "name": "Content-Type",

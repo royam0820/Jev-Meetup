@@ -188,7 +188,7 @@
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "cq45RnzZBenZWFkn",
+          "id": "REPLACE_ME",
           "name": "Google Gemini(PaLM) Api account 2"
         }
       }
@@ -213,7 +213,7 @@
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "inXUMEcUSG4zNLnh",
+          "id": "REPLACE_ME",
           "name": "OpenAi account"
         }
       }
@@ -227,7 +227,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer YOUR_O…_KEY"
+              "value": "Bearer YOUR_OPENROUTER_KEY"
             },
             {
               "name": "Content-Type",
