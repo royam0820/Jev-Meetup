@@ -213,7 +213,9 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "fallbackOutput": 0
+        }
       },
       "id": "2a82027a-07ae-4d76-9142-e5ae797c5f8c",
       "name": "Router par bucket",

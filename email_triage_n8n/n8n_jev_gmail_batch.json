@@ -87,7 +87,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const idx = $('Empaqueter (1 appel)').first().json.index;\nconst ans = $json.answers;\nreturn idx.map(e => {\n  const a = ans[e.key] || {};\n  const conf = a.confidence;\n  const label = (conf === undefined || conf < 0.7) ? 'A revoir (humain)' : a.choice;\n  return { json: { gmailId: e.id, subject: e.subject, choice: a.choice, confidence: conf, label: label } };\n});"
+        "jsCode": "const idx = $('Empaqueter (1 appel)').first().json.index;\nconst ans = $json.answers;\nreturn idx.map(e => {\n  const a = ans[e.key] || {};\n  const conf = a.confidence;\n  const label = (conf === undefined || conf < 0.7 || !a.choice) ? 'A revoir (humain)' : a.choice;\n  return { json: { gmailId: e.id, subject: e.subject, choice: a.choice, confidence: conf, label: label } };\n});"
       },
       "id": "0b3f70b9-5fd6-4249-8174-bac73efacb5e",
       "name": "Depaqueter",
@@ -242,7 +242,9 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "fallbackOutput": 0
+        }
       },
       "id": "2dc1742f-923c-436a-8ace-9a48c51bfc64",
       "name": "Router par bucket",
