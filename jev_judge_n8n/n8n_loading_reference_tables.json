@@ -1,0 +1,165 @@
+{
+  "name": "1-Loading Reference Tables",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        64
+      ],
+      "id": "1c4b0e39-942c-4412-a97f-da234fbb23a8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "E8tlPjndUhKm1rDF",
+          "mode": "list",
+          "cachedResultName": "QA_Evaluations",
+          "cachedResultUrl": "/projects/6Fjmkjt2Wl8Zimhv/datatables/E8tlPjndUhKm1rDF"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "question": "={{ $json.question }}",
+            "reference_answer": "={{ $json.reference_answer }}",
+            "row_number": "={{ $json.row_number - 1 }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "reference_answer",
+              "displayName": "reference_answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "actual_answer",
+              "displayName": "actual_answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "correctness",
+              "displayName": "correctness",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        704,
+        64
+      ],
+      "id": "135d9ba2-34d4-4ad3-8cb5-2d0067522d2a",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1R5uDOHUcgE4VVyeGt-jD05Gok6UmyEWCYzM4e2pTpy0",
+          "mode": "list",
+          "cachedResultName": "QA_Evaluations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R5uDOHUcgE4VVyeGt-jD05Gok6UmyEWCYzM4e2pTpy0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "QA_Evaluations",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R5uDOHUcgE4VVyeGt-jD05Gok6UmyEWCYzM4e2pTpy0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        64
+      ],
+      "id": "8d29821d-fbe2-4c89-830d-746cafab44f2",
+      "name": "QA_Evaluations Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ugbZBDBLOh173bWU",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "QA_Evaluations Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QA_Evaluations Sheet": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
