@@ -4,9 +4,10 @@ Trois workflows n8n pour **trier une boîte Gmail avec Jev** — sans LLM géné
 Jev rend une **décision typée** (bucket) + une **probabilité de confiance**, et le
 workflow route automatiquement… ou renvoie à l'humain si la confiance est trop faible.
 
-**BYOK** : chaque workflow appelle OpenRouter. Remplacer le placeholder
-`Bearer YOUR_O…_KEY` par une credential **Header Auth** (`Name: Authorization`,
-`Value: Bearer sk-or-…`), ou directement coller la clé (démo).
+**BYOK** : chaque workflow appelle OpenRouter via une **credential Header Auth**
+(`Name: Authorization`, `Value: Bearer sk-or-…`) — à créer une fois dans n8n, puis à
+sélectionner sur le nœud HTTP `JEV decide`. Aucune clé n'est stockée en clair dans les
+fichiers exportés.
 
 ## Les 3 workflows
 

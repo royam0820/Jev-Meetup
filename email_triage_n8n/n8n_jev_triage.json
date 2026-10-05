@@ -38,13 +38,8 @@
       "parameters": {
         "method": "POST",
         "url": "https://openrouter.ai/api/alpha/decisions",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "Authorization", "value": "Bearer YOUR_OPENROUTER_KEY" },
-            { "name": "Content-Type", "value": "application/json" }
-          ]
-        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ model: 'typesafe/jev-1.13', state: $json.state, questions: { queue: { type: 'choice', instructions: 'Quel est le type de ce message ?', criteria: { 'client urgent': \"client urgent / blocage / plainte\", 'demande admin': \"demande administrative interne\", spam: \"prospection non sollicitée\", newsletter: \"infolettre / actu\" } } } }) }}",
@@ -54,7 +49,8 @@
       "name": "JEV decide",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [100, 0]
+      "position": [100, 0],
+      "credentials": { "httpHeaderAuth": { "id": "REPLACE_ME", "name": "OpenRouter (Header Auth)" } }
     },
     {
       "parameters": {
