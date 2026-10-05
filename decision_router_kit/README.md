@@ -58,6 +58,17 @@ Types de question : `choice` (criteria = record), `noul` (criteria = {true, fals
 
 ## Lancer
 
+**Raccourci** (démarre le moteur local, attend qu'il réponde, puis lance la démo) :
+
+```bash
+chmod +x run_demo.sh
+./run_demo.sh              # moteur local + JEV
+./run_demo.sh --cloud      # JEV seul (pas de moteur local)
+./run_demo.sh --keep       # laisse le moteur tourner après la démo
+```
+
+**À la main**, si vous préférez détailler chaque étape :
+
 ```bash
 # 1) JEV seul (aucune dépendance locale, juste une clé OpenRouter)
 export OPENROUTER_API_KEY=sk-or-<votre-clé>   # ou copier .env.example → .env
