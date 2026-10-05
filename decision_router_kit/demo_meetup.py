@@ -97,10 +97,11 @@ def local_up() -> bool:
         return False
 
 
-def call_local(case: dict) -> dict:
+def call_local(case: dict, threshold: float = THRESHOLD) -> dict:
+    payload = {**case, "threshold": threshold}
     req = urllib.request.Request(
         LOCAL_URL,
-        data=json.dumps(case).encode("utf-8"),
+        data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
     )
@@ -141,7 +142,7 @@ def verdict(res: dict) -> str:
 
 def main() -> None:
     cloud_only = "--cloud" in sys.argv
-    have_local = local_up()
+    have_local = (not cloud_only) and local_up()
 
     title = "Aiguillage IA — le même cas, deux moteurs"
     print()
