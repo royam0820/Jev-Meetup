@@ -31,6 +31,12 @@ Puis selon la démo :
 - **Workflows n8n** : *Import from File* des `.json` → remplacer `Bearer YOUR_OPENROUTER_KEY` par une credential **Header Auth** (ou la vraie clé).
 - **Notebook** : ouvrir `notebooks/jev_carwash_state_definition.ipynb` dans Colab → lancer la cellule de config → coller la clé.
 
+## Données d'exemple
+
+- [`data/support_client_jev.csv`](data/support_client_jev.csv) — 12 messages clients (fictifs) avec l'urgence attendue et la probabilité par classe (`urgent` / `à suivre` / `pas de suivi`). Snapshot de la Google Sheet « Support-Client-Jev » — source : <https://docs.google.com/spreadsheets/d/12FastpfXszL6GkA27eMsnh3EINFRr0KYvBjjP-wQjew/edit>.
+
+  Versionné en CSV pour que la démo reste autonome et reproductible hors-ligne (pas de dépendance à un lien Sheet). La Sheet reste la surface d'édition ; ré-exporter le CSV après modification.
+
 ## Contexte
 
 - **Jev** sur OpenRouter : endpoint `POST https://openrouter.ai/api/alpha/decisions`, modèle `typesafe/jev-1.13`.

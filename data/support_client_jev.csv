@@ -1,0 +1,13 @@
+Message Client,Urgence,P(étiquette),urgent,à suivre,pas de suivi
+"Mon site est complètement en panne depuis 2 heures, personne ne peut commander.",urgent,1,1,0,0
+"Bonjour, je voudrais changer l'adresse de livraison sur ma commande 4521.",à suivre,0.98,0.02,0.98,0
+"URGENT : notre base de données prod est corrompue, on perd des données en ce moment !",urgent,1,1,0,0
+Est-ce que vous proposez des réductions pour les étudiants ?,à suivre,0.9,0,0.9,0.1
+"Le paiement par carte ne fonctionne plus du tout, nos clients sont bloqués en caisse.",urgent,1,1,0,0
+"Merci pour la livraison rapide, tout est parfait.",pas de suivi,1,0,0,1
+"Nous avons une fuite de données personnelles, il faut agir immédiatement.",urgent,1,1,0,0
+Pourriez-vous m'envoyer une copie de ma facture de juin ?,à suivre,1,0,1,0
+"Le serveur renvoie des erreurs 500 en continu, tous nos services sont down.",urgent,1,1,0,0
+Je souhaite annuler mon abonnement à la fin du mois.,à suivre,1,0,1,0
+Notre certificat SSL expire dans 1 heure et personne n'a les accès pour le renouveler.,urgent,1,1,0,0
+Petite question : est-ce que votre API supporte le format XML ?,à suivre,0.89,0,0.89,0.11
