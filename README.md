@@ -10,7 +10,8 @@ Thème : les **System One models** — des modèles qui ne génèrent pas de tex
 |---|---|
 | [`jev_adblock_openrouter/`](jev_adblock_openrouter/) | Extension Chrome anti-pub : le code trouve les candidats DOM, **Jev** juge « est-ce une pub ? » et supprime l'élément. Transport via **OpenRouter** (`POST /api/alpha/decisions`, modèle `typesafe/jev-1.13`). |
 | [`unclutter_openrouter/`](unclutter_openrouter/) | Extension navigateur (**unclutter**, fork WXT) : masque les pubs/promos d'une page via des règles de template réutilisables, validées par **Jev**. Build prébuildé `chrome-mv3/` fourni (load unpacked) + sources. Transport **OpenRouter**. |
-| [`decision_router_kit/`](decision_router_kit/) | Kit d'aiguillage : le même nœud de décision (état + question + options → décision typée + probabilités) exécuté par un **moteur local open-source** ($0, self-hosted) et par **Jev** via OpenRouter. Clients Python, démo scène, 3 workflows n8n importables. |
+| [`decision_router_kit/`](decision_router_kit/) | Kit d'aiguillage : le même nœud de décision (état + question + options → décision typée + probabilités) exécuté par un **moteur local open-source** ($0, self-hosted) et par **Jev** via OpenRouter. Clients Python + démo scène. |
+| [`email_triage_n8n/`](email_triage_n8n/) | **Triage email avec Jev** (n8n) : 3 workflows Gmail — triage unitaire avec garde-fou de confiance, **tri par lot (1 appel HTTP pour N mails)**, et étiquetage temps réel. |
 | [`jev_judge_n8n/`](jev_judge_n8n/) | **Jev comme LLM-judge de correctness** : au lieu d'un LLM qui juge un autre LLM, Jev rend un verdict typé + probabilités calibrées. Workflows n8n (Jev seul, Jev vs LLM-judge, éval sur golden standard) + CSV. |
 | [`notebooks/`](notebooks/) | Notebooks Colab : [`jev_carwash_state_definition.ipynb`](notebooks/jev_carwash_state_definition.ipynb) — pourquoi la définition du `state` compte (type-safe ≠ world-safe). |
 

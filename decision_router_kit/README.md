@@ -13,10 +13,10 @@ open-source** (gratuit, hors-ligne) et **JEV** (TypeSafe) via **OpenRouter**.
 | `jev_cloud.py` | Client JEV (TypeSafe) via OpenRouter — décision typée + probabilités. Même contrat que le moteur local. |
 | `compare_local_vs_jev.py` | Démo : le même aiguillage exécuté par le moteur LOCAL (open-source, $0) ET par JEV cloud, côte à côte. |
 | `demo_meetup.py` | Démo « scène » (partage d'écran) : 3 cas (accord → divergence → doute), barres de confiance, badge AUTO / REVUE HUMAINE. |
-| `n8n_jev_triage.json` | Workflow n8n : Start → Prepare → JEV decide → IF(confiance) → Routage auto / Revue humaine. |
-| `n8n_jev_gmail_batch.json` | Workflow n8n : tri par lot de mails via Gmail + JEV. |
-| `n8n_jev_gmail_labels.json` | Workflow n8n : application de labels Gmail selon la décision JEV. |
 | `local_engine/router_service.py` | Micro-service de décision self-hosted (`routerd`) : lecteur de logits sur un petit Qwen3 local → $0. |
+
+> 📥 Les **workflows n8n de triage email** (triage, tri par lot Gmail, étiquettes)
+> sont dans le dossier voisin [`../email_triage_n8n/`](../email_triage_n8n/).
 
 ## Deux moteurs, un seul contrat
 
