@@ -8,7 +8,7 @@ distribution de probabilités. Sauf qu'ici la décision est calculée par le vra
 modèle JEV (`typesafe/jev-1.13`) servi par OpenRouter.
 
 Endpoint : POST https://openrouter.ai/api/alpha/decisions   (alpha, PAS chat/completions)
-Prix     : $0.042 / M tokens in, sortie gratuite  -> ~$0.000015 / décision
+Prix     : $0.042 / M tokens in, sortie gratuite  -> ~$0.000016 / décision
 Ctx      : 32 000 tokens
 
 Types de question supportés par JEV :

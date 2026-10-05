@@ -4,7 +4,7 @@ demo_meetup.py — Démo « scène » du meetup Aiguillage IA (8 octobre 2026).
 
 Le MÊME cas, jugé par DEUX moteurs :
   - LOCAL  : Qwen3-1.7B servi par `routerd`  (self-hosted, $0, ~2-4 s, 2 vCPU)
-  - CLOUD  : JEV (TypeSafe) via OpenRouter    (~0,3 s, ~$0,000015 / décision)
+  - CLOUD  : JEV (TypeSafe) via OpenRouter    (~0,3 s, ~$0,000016 / décision)
 
 Affichage pensé pour un partage d'écran Zoom : 3 cas, barres de confiance,
 badge de verdict (AUTO / REVUE HUMAINE).

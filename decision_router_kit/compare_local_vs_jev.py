@@ -3,7 +3,7 @@
 compare_local_vs_jev.py — Démo meetup : le même aiguillage, deux moteurs.
 
   - LOCAL  : micro-service `routerd` (pattern open-source self-hosted, $0, CPU)
-  - CLOUD  : JEV TypeSafe via OpenRouter (le vrai produit, ~$0.000015/décision)
+  - CLOUD  : JEV TypeSafe via OpenRouter (le vrai produit, ~$0.000016/décision)
 
 Les deux renvoient le MÊME format -> on peut les mettre côte à côte, et
 basculer de l'un à l'autre sans changer le reste du workflow (n8n inclus).
@@ -112,7 +112,7 @@ def main() -> None:
         print()
 
     print("— moyennes —")
-    print(f"  JEV cloud : {statistics.mean(cloud_lat):.0f} ms  (~$0.000015/décision)")
+    print(f"  JEV cloud : {statistics.mean(cloud_lat):.0f} ms  (~$0.000016/décision)")
     if local_lat:
         print(f"  LOCAL     : {statistics.mean(local_lat):.0f} ms  ($0)")
     print("\nÀ retenir : même contrat, deux économies -> 0 €/offline vs 1/1000 centime/appel.")

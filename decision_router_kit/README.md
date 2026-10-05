@@ -22,8 +22,8 @@ open-source** (gratuit, hors-ligne) et **JEV** (TypeSafe) via **OpenRouter**.
 
 | | LOCAL (`routerd`) | CLOUD (JEV) |
 |---|---|---|
-| Coût | $0 (CPU) | ~$0,000015 / décision |
-| Latence | ~2,4 s (warm), ~49 s (cold) | ~0,6–1,5 s |
+| Coût | $0 (CPU) | ~$0,000016 / décision |
+| Latence | ~2,4 s (warm), ~49 s (cold) | ~0,3–0,7 s |
 | Dépendance | Qwen3-1.7B en RAM (~3,5 Go) | 1 appel HTTP |
 | Offline | Oui | Non |
 | C'est… | la repro open-source du pattern | le vrai produit TypeSafe |
