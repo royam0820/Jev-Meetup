@@ -14,6 +14,7 @@ Thème : les **System One models** — des modèles qui ne génèrent pas de tex
 | [`email_triage_n8n/`](email_triage_n8n/) | **Triage email avec Jev** (n8n) : 3 workflows Gmail — triage unitaire avec garde-fou de confiance, **tri par lot (1 appel HTTP pour N mails)**, et étiquetage temps réel. |
 | [`jev_judge_n8n/`](jev_judge_n8n/) | **Jev comme LLM-judge de correctness** : au lieu d'un LLM qui juge un autre LLM, Jev rend un verdict typé + probabilités calibrées. Workflows n8n (Jev seul, Jev vs LLM-judge, éval sur golden standard) + CSV. |
 | [`notebooks/`](notebooks/) | Notebooks Colab : [`jev_carwash_state_definition.ipynb`](notebooks/jev_carwash_state_definition.ipynb) — pourquoi la définition du `state` compte (type-safe ≠ world-safe) ; [`prompt_Injection_avec_JEV.ipynb`](notebooks/prompt_Injection_avec_JEV.ipynb) — prompt injection : JEV n'est pas immunisé, comment le détecter (`choice` + `noul`). |
+| [`slides/`](slides/) | **Support de présentation** du meetup : [`aiguillage_ia_ca123_final_v2.pdf`](slides/aiguillage_ia_ca123_final_v2.pdf) — deck Code Academy 123 (« Aiguillage IA — quand les modèles décident au lieu d'écrire »). |
 
 ## Démarrage rapide
 
