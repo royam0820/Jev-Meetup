@@ -70,12 +70,12 @@ print(f"Config: model={JEV_MODEL}, row_cap={JEV_ROW_CAP}, threads={JEV_THREADS}"
 # --- Colab / Kaggle setup: Colab Secrets first, kaggle.json fallback -----
 import importlib.util, subprocess, sys, shutil, pathlib
 IN_COLAB = "google.colab" in str(globals().get("get_ipython", lambda: "")())
-_kfile = pathlib.Path.home() / ".kaggle" / "kaggle.json"
+_kdir   = pathlib.Path.home() / ".kaggle"
+_kjson  = _kdir / "kaggle.json"
+_ktoken = _kdir / "access_token"
 
-if IN_COLAB and not _kfile.exists():
-    if importlib.util.find_spec("kaggle") is None:
-        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "kaggle"], check=False)
-
+if IN_COLAB and not (_kjson.exists() or _ktoken.exists()):
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "kaggle"], check=False)
     from google.colab import userdata
     def _secret(name):
         try:
@@ -86,32 +86,29 @@ if IN_COLAB and not _kfile.exists():
 
     raw   = _secret("KAGGLE_API_KEY") or _secret("KAGGLE_KEY") or _secret("kaggle")
     uname = _secret("KAGGLE_USERNAME")
+    _kdir.mkdir(parents=True, exist_ok=True)
 
-    payload = None
-    if raw and raw.startswith("{"):
-        payload = json.loads(raw)                      # full kaggle.json pasted as the secret
-    elif raw and raw.count(":") == 1:
-        u, k = raw.split(":", 1); payload = {"username": u.strip(), "key": k.strip()}
-    elif raw and uname:
-        payload = {"username": uname, "key": raw}      # bare key + KAGGLE_USERNAME secret
+    if raw and raw.startswith("{"):                        # full kaggle.json in the secret
+        _kjson.write_text(raw); os.chmod(_kjson, 0o600); print("Kaggle auth: legacy kaggle.json <- secret")
+    elif raw and raw.startswith("KGAT"):                   # new-style API token
+        _ktoken.write_text(raw); os.chmod(_ktoken, 0o600); print("Kaggle auth: new API token -> access_token")
+    elif raw and uname:                                    # plain legacy key + username
+        _kjson.write_text(json.dumps({"username": uname, "key": raw})); os.chmod(_kjson, 0o600)
+        print("Kaggle auth: username+key -> kaggle.json")
+    elif raw and raw.count(":") == 1:                      # "user:key"
+        u, k = raw.split(":", 1)
+        _kjson.write_text(json.dumps({"username": u.strip(), "key": k.strip()})); os.chmod(_kjson, 0o600)
+        print("Kaggle auth: user:key -> kaggle.json")
     elif raw:
-        print("KAGGLE_API_KEY looks like a bare key: paste the FULL kaggle.json as the secret, "
-              "OR add a KAGGLE_USERNAME secret.")
+        _ktoken.write_text(raw); os.chmod(_ktoken, 0o600); print("Kaggle auth: token -> access_token")
+    else:
+        print("No KAGGLE_API_KEY secret found.")
 
-    if payload:
-        _kfile.parent.mkdir(parents=True, exist_ok=True)
-        _kfile.write_text(json.dumps(payload)); os.chmod(_kfile, 0o600)
-        print("Kaggle creds loaded from Colab secrets ->", _kfile)
+    for _f in (_kjson, _ktoken):
+        if _f.exists():
+            print(f"  wrote {_f} ({_f.stat().st_size} bytes)"); break
 
-    if not _kfile.exists():                            # last resort: manual upload
-        from google.colab import files as _cfiles
-        print("No Kaggle secret found - upload kaggle.json (Kaggle -> Account -> Create New API Token):")
-        _cfiles.upload()
-        if os.path.exists("/content/kaggle.json"):
-            shutil.move("/content/kaggle.json", str(_kfile))
-        os.chmod(str(_kfile), 0o600)
-
-KAGGLE_CREDS = os.path.exists(os.path.expanduser("~/.kaggle/kaggle.json"))
+KAGGLE_CREDS = _kjson.exists() or _ktoken.exists()
 FALLBACK_CANDIDATES = [
     os.path.join(OUT_DIR, "data", "imports-85.data"),
     "./data/imports-85.data",
