@@ -125,8 +125,11 @@ if KAGGLE_CREDS:
     try:
         import subprocess, zipfile, glob
         os.makedirs("/tmp/bulldozer", exist_ok=True)
-        subprocess.run("kaggle competitions download -c bluebook-for-bulldozers -p /tmp/bulldozer -q",
-                       shell=True, check=False)
+        _r = subprocess.run("kaggle competitions download -c bluebook-for-bulldozers -p /tmp/bulldozer",
+                            shell=True, capture_output=True, text=True)
+        print("kaggle rc:", _r.returncode, "| files:", glob.glob("/tmp/bulldozer/*"))
+        if _r.returncode != 0:
+            print("kaggle output:", (_r.stderr or _r.stdout or "")[-800:])
         for _z in glob.glob("/tmp/bulldozer/*.zip"):
             with zipfile.ZipFile(_z) as zf:
                 zf.extractall("/tmp/bulldozer")
