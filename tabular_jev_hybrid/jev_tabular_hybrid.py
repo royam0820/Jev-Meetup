@@ -1,14 +1,25 @@
-# %% [markdown]
+#!/usr/bin/env python
+# coding: utf-8
+
+# # [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/royam0820/Jev-Meetup/blob/master/tabular_jev_hybrid/jev_tabular_hybrid.ipynb)
+# 
+# **Run on the real `bluebook-for-bulldozers` data (fastai ch.9):** click the badge, accept the
+# competition rules on Kaggle, then upload your `kaggle.json` when the notebook prompts you
+# (Kaggle → *Account → Create New API Token*). Without creds, the notebook auto-falls back to a
+# small bundled automobile dataset so the pipeline still runs end to end.
+# 
+
 # # Jev TypeSafe × Gradient-Boosted Regressor: Hybrid Tabular Price Prediction
 # 
 # This notebook demonstrates a **hybrid pattern**: using the Jev decision model for
 # semantic feature extraction on text/categorical columns, then feeding those features
 # into a gradient-boosted regressor. We benchmark against a RandomForest baseline.
 
-# %% [markdown]
 # ## 1. Setup & Configuration
 
-# %%
+# In[1]:
+
+
 import os, json, time, warnings, math
 import numpy as np
 import pandas as pd
@@ -43,28 +54,63 @@ JEV_RETRIES = 3
 API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 assert API_KEY, "OPENROUTER_API_KEY not set"
 
-OUT_DIR = "/data/.openclaw/workspace-coder/output/jev_tabular"
+# Portable output dir (override with JEV_OUT_DIR)
+OUT_DIR = os.environ.get("JEV_OUT_DIR", "./jev_tabular_out")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 print(f"Config: model={JEV_MODEL}, row_cap={JEV_ROW_CAP}, threads={JEV_THREADS}")
 
-# %% [markdown]
+
 # ## 2. Load & Clean Data
 
-# %%
+# In[2]:
+
+
 # Try Kaggle bulldozer first, fall back to UCI automobile
+# --- Colab / Kaggle setup ------------------------------------------------
+IN_COLAB = "google.colab" in str(globals().get("get_ipython", lambda: "")())
+if IN_COLAB:
+    import importlib.util, subprocess, sys
+    if importlib.util.find_spec("kaggle") is None:
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "kaggle"], check=False)
+    from pathlib import Path
+    _kdir = Path("~/.kaggle").expanduser(); _kdir.mkdir(parents=True, exist_ok=True)
+    _kfile = _kdir / "kaggle.json"
+    if not _kfile.exists():
+        from google.colab import files as _cfiles
+        print("Upload your kaggle.json (Kaggle -> Account -> Create New API Token):")
+        _cfiles.upload()
+        for _f in os.listdir("/content"):
+            if _f == "kaggle.json":
+                import shutil; shutil.move("/content/kaggle.json", str(_kfile))
+    os.chmod(str(_kfile), 0o600)
+
 KAGGLE_CREDS = os.path.exists(os.path.expanduser("~/.kaggle/kaggle.json"))
-FALLBACK_PATH = os.path.join(OUT_DIR, "data/imports-85.data")
+FALLBACK_CANDIDATES = [
+    os.path.join(OUT_DIR, "data", "imports-85.data"),
+    "./data/imports-85.data",
+    "./tabular_jev_hybrid/data/imports-85.data",
+    "/data/.openclaw/workspace-coder/output/jev_tabular/data/imports-85.data",
+]
+FALLBACK_PATH = next((p for p in FALLBACK_CANDIDATES if os.path.exists(p)), FALLBACK_CANDIDATES[0])
 
 MODE = None
 if KAGGLE_CREDS:
     try:
-        os.system("kaggle competitions download -c bluebook-for-bulldozers -p /tmp/bulldozer 2>/dev/null")
+        import subprocess, zipfile, glob
+        os.makedirs("/tmp/bulldozer", exist_ok=True)
+        subprocess.run("kaggle competitions download -c bluebook-for-bulldozers -p /tmp/bulldozer -q",
+                       shell=True, check=False)
+        for _z in glob.glob("/tmp/bulldozer/*.zip"):
+            with zipfile.ZipFile(_z) as zf:
+                zf.extractall("/tmp/bulldozer")
         if os.path.exists("/tmp/bulldozer/TrainAndValid.csv"):
             df_raw = pd.read_csv("/tmp/bulldozer/TrainAndValid.csv", low_memory=False, parse_dates=["saledate"])
             MODE = "bulldozer"
-    except Exception:
-        pass
+        else:
+            print("! Kaggle download returned no TrainAndValid.csv (rules accepted? creds valid?) - falling back")
+    except Exception as _e:
+        print("bulldozer load failed:", _e)
 
 if MODE is None:
     UCI_COLS = [
@@ -78,7 +124,10 @@ if MODE is None:
 
 print(f"▶ MODE = {MODE}  |  shape = {df_raw.shape}")
 
-# %%
+
+# In[3]:
+
+
 # Clean
 if MODE == "bulldozer":
     TARGET = "SalePrice"
@@ -110,10 +159,12 @@ y_valid_log = np.log1p(df_valid[TARGET].values)
 print(f"Train: {len(df_train)}, Valid: {len(df_valid)}")
 print(f"Target: {TARGET}, Text cols: {TEXT_COLS}")
 
-# %% [markdown]
+
 # ## 3. Baseline Models
 
-# %%
+# In[4]:
+
+
 def prepare_baseline_features(df_tr, df_va, text_cols, target):
     """Ordinal-encode categoricals, median-fill numerics."""
     feature_cols = [c for c in df_tr.columns if c != target]
@@ -154,7 +205,10 @@ def rmsle_from_log(y_true_log, y_pred_log):
     """RMSLE = RMSE of log-space predictions."""
     return math.sqrt(mean_squared_error(y_true_log, y_pred_log))
 
-# %%
+
+# In[5]:
+
+
 # Random Forest baseline
 rf = RandomForestRegressor(n_estimators=40, min_samples_leaf=25, n_jobs=-1, random_state=42)
 rf.fit(X_train, y_train_log)
@@ -162,7 +216,10 @@ rf_pred = rf.predict(X_valid)
 rf_rmsle = rmsle_from_log(y_valid_log, rf_pred)
 print(f"RandomForest baseline RMSLE: {rf_rmsle:.4f}")
 
-# %%
+
+# In[6]:
+
+
 # HistGradientBoosting baseline
 hgb = HistGradientBoostingRegressor(max_iter=200, max_depth=6, learning_rate=0.1, random_state=42)
 hgb.fit(X_train, y_train_log)
@@ -170,7 +227,10 @@ hgb_pred = hgb.predict(X_valid)
 hgb_rmsle = rmsle_from_log(y_valid_log, hgb_pred)
 print(f"HistGradientBoosting baseline RMSLE: {hgb_rmsle:.4f}")
 
-# %%
+
+# In[7]:
+
+
 # XGBoost baseline (if available)
 xgb_rmsle = None
 if HAS_XGB:
@@ -180,10 +240,12 @@ if HAS_XGB:
     xgb_rmsle = rmsle_from_log(y_valid_log, xgb_pred)
     print(f"XGBoost baseline RMSLE: {xgb_rmsle:.4f}")
 
-# %% [markdown]
+
 # ## 4. Jev Feature Extraction
 
-# %%
+# In[8]:
+
+
 def jev_call(row_dict, retries=JEV_RETRIES):
     """Call Jev API for a single row, return parsed answers + cost."""
     state = {k: str(v) for k, v in row_dict.items()}
@@ -256,7 +318,10 @@ def jev_call(row_dict, retries=JEV_RETRIES):
             time.sleep(1)
     return None, 0.0
 
-# %%
+
+# In[9]:
+
+
 # Run Jev on all rows (capped)
 all_rows = pd.concat([df_train, df_valid]).head(JEV_ROW_CAP)
 # Only send text columns + a few key numerics for context
@@ -295,10 +360,12 @@ with ThreadPoolExecutor(max_workers=JEV_THREADS) as pool:
 elapsed = time.time() - t0
 print(f"Jev complete: {len(jev_results)} ok, {failures} failures, {elapsed:.1f}s, ${total_cost:.6f}")
 
-# %% [markdown]
+
 # ## 5. Build Jev Features & Hybrid Model
 
-# %%
+# In[10]:
+
+
 def extract_jev_features(answers):
     """Convert Jev answers dict into a flat feature dict."""
     feats = {}
@@ -352,7 +419,10 @@ jev_feature_names = list(df_jev.columns)
 print(f"Jev features: {len(jev_feature_names)} columns")
 print(df_jev.head())
 
-# %%
+
+# In[11]:
+
+
 # Combine baseline + Jev features
 X_train_jev = np.hstack([X_train, df_jev.loc[df_train.index].values.astype(np.float32)])
 X_valid_jev = np.hstack([X_valid, df_jev.loc[df_valid.index].values.astype(np.float32)])
@@ -360,7 +430,10 @@ hybrid_feature_names = feature_names + jev_feature_names
 
 print(f"Hybrid feature matrix: train={X_train_jev.shape}, valid={X_valid_jev.shape}")
 
-# %%
+
+# In[12]:
+
+
 # Hybrid RF
 rf_hyb = RandomForestRegressor(n_estimators=40, min_samples_leaf=25, n_jobs=-1, random_state=42)
 rf_hyb.fit(X_train_jev, y_train_log)
@@ -384,10 +457,12 @@ if HAS_XGB:
     xgb_hyb_rmsle = rmsle_from_log(y_valid_log, xgb_hyb_pred)
     print(f"Hybrid XGB RMSLE: {xgb_hyb_rmsle:.4f}")
 
-# %% [markdown]
+
 # ## 6. Jev-Only Baseline (No Training)
 
-# %%
+# In[13]:
+
+
 # Map value_tier score → price via train-set quantiles
 train_jev = df_jev.loc[df_train.index].copy()
 train_jev["price"] = df_train[TARGET].values
@@ -420,10 +495,12 @@ jev_only_preds = np.array(jev_only_preds)
 jev_only_rmsle = rmsle_from_log(y_valid_log, np.log1p(jev_only_preds))
 print(f"Jev-only (no training) RMSLE: {jev_only_rmsle:.4f}")
 
-# %% [markdown]
+
 # ## 7. Results & Visualization
 
-# %%
+# In[14]:
+
+
 # Build comparison table
 results = {
     "mode": MODE,
@@ -467,13 +544,19 @@ print(f"\nJev total cost: ${total_cost:.6f}")
 print(f"Jev latency: {elapsed:.1f}s for {len(jev_results)} calls")
 print("="*60)
 
-# %%
+
+# In[15]:
+
+
 # Save results.json
 with open(os.path.join(OUT_DIR, "results.json"), "w") as f:
     json.dump(results, f, indent=2)
 print(f"✓ results.json saved")
 
-# %%
+
+# In[16]:
+
+
 # Chart
 model_names = []
 baseline_vals = []
@@ -521,10 +604,12 @@ chart_path = os.path.join(OUT_DIR, "chart.png")
 plt.savefig(chart_path, dpi=150)
 print(f"✓ chart.png saved")
 
-# %% [markdown]
+
 # ## 8. Conclusions
 
-# %%
+# In[17]:
+
+
 summary = f"""# Jev Tabular Hybrid — Results Summary
 
 ## Mode: `{MODE}`
@@ -568,3 +653,4 @@ with open(os.path.join(OUT_DIR, "results_summary.md"), "w") as f:
 print(summary)
 print(f"\n✓ results_summary.md saved")
 print(f"\nAll outputs in: {OUT_DIR}/")
+

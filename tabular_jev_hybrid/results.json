@@ -5,7 +5,7 @@
   "n_jev_calls": 201,
   "jev_failures": 0,
   "jev_total_cost_usd": 0.00769667,
-  "jev_latency_seconds": 7.3,
+  "jev_latency_seconds": 7.4,
   "models": {
     "rf_baseline": {
       "rmsle": 0.3689
@@ -14,24 +14,24 @@
       "rmsle": 0.1419
     },
     "rf_hybrid": {
-      "rmsle": 0.3506
+      "rmsle": 0.3568
     },
     "hgb_hybrid": {
-      "rmsle": 0.1416
+      "rmsle": 0.1339
     },
     "jev_only": {
-      "rmsle": 0.2887
+      "rmsle": 0.2848
     },
     "xgb_baseline": {
       "rmsle": 0.1243
     },
     "xgb_hybrid": {
-      "rmsle": 0.1304
+      "rmsle": 0.122
     }
   },
   "deltas": {
-    "rf_improvement": 0.0183,
-    "hgb_improvement": 0.0003,
-    "xgb_improvement": -0.006
+    "rf_improvement": 0.0121,
+    "hgb_improvement": 0.008,
+    "xgb_improvement": 0.0023
   }
 }
