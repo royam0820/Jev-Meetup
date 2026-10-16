@@ -1,37 +1,37 @@
 {
-  "mode": "fallback_automobile",
-  "n_train": 160,
-  "n_valid": 41,
-  "n_jev_calls": 201,
+  "mode": "bulldozer",
+  "n_train": 4800,
+  "n_valid": 1200,
+  "n_jev_calls": 6000,
   "jev_failures": 0,
-  "jev_total_cost_usd": 0.00769667,
-  "jev_latency_seconds": 7.4,
+  "jev_total_cost_usd": 0.3158416,
+  "jev_latency_seconds": 211.4,
   "models": {
     "rf_baseline": {
-      "rmsle": 0.3689
+      "rmsle": 0.5
     },
     "hgb_baseline": {
-      "rmsle": 0.1419
+      "rmsle": 0.4389
     },
     "rf_hybrid": {
-      "rmsle": 0.3568
+      "rmsle": 0.3842
     },
     "hgb_hybrid": {
-      "rmsle": 0.1339
+      "rmsle": 0.3334
     },
     "jev_only": {
-      "rmsle": 0.2848
+      "rmsle": 0.6271
     },
     "xgb_baseline": {
-      "rmsle": 0.1243
+      "rmsle": 0.4472
     },
     "xgb_hybrid": {
-      "rmsle": 0.122
+      "rmsle": 0.3425
     }
   },
   "deltas": {
-    "rf_improvement": 0.0121,
-    "hgb_improvement": 0.008,
-    "xgb_improvement": 0.0023
+    "rf_improvement": 0.1158,
+    "hgb_improvement": 0.1055,
+    "xgb_improvement": 0.1046
   }
 }

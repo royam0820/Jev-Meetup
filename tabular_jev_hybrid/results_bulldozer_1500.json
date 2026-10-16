@@ -1,0 +1,37 @@
+{
+  "mode": "bulldozer",
+  "n_train": 1200,
+  "n_valid": 300,
+  "n_jev_calls": 1500,
+  "jev_failures": 0,
+  "jev_total_cost_usd": 0.07895089,
+  "jev_latency_seconds": 54.1,
+  "models": {
+    "rf_baseline": {
+      "rmsle": 0.6237
+    },
+    "hgb_baseline": {
+      "rmsle": 0.5394
+    },
+    "rf_hybrid": {
+      "rmsle": 0.4458
+    },
+    "hgb_hybrid": {
+      "rmsle": 0.3726
+    },
+    "jev_only": {
+      "rmsle": 0.6282
+    },
+    "xgb_baseline": {
+      "rmsle": 0.5155
+    },
+    "xgb_hybrid": {
+      "rmsle": 0.3835
+    }
+  },
+  "deltas": {
+    "rf_improvement": 0.1779,
+    "hgb_improvement": 0.1669,
+    "xgb_improvement": 0.132
+  }
+}
