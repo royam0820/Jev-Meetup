@@ -99,7 +99,25 @@ FALLBACK_CANDIDATES = [
 FALLBACK_PATH = next((p for p in FALLBACK_CANDIDATES if os.path.exists(p)), FALLBACK_CANDIDATES[0])
 
 MODE = None
-if KAGGLE_CREDS:
+import glob as _glob, zipfile as _zip
+# (A) Manually uploaded zip wins (drop bluebook-for-bulldozers.zip in /content)
+for _z in _glob.glob("/content/*ulldozer*.zip") + _glob.glob("/tmp/*ulldozer*.zip"):
+    os.makedirs("/tmp/bulldozer", exist_ok=True)
+    with _zip.ZipFile(_z) as _zf:
+        _zf.extractall("/tmp/bulldozer")
+    print("Using manually uploaded zip:", _z); break
+_cand0, _tr0, _va0 = ("/tmp/bulldozer/TrainAndValid.csv",
+                      "/tmp/bulldozer/Train.csv", "/tmp/bulldozer/Valid.csv")
+if os.path.exists(_cand0):
+    df_raw = pd.read_csv(_cand0, low_memory=False, parse_dates=["saledate"]); MODE = "bulldozer"
+elif os.path.exists(_tr0):
+    _parts = [pd.read_csv(_tr0, low_memory=False, parse_dates=["saledate"])]
+    if os.path.exists(_va0):
+        _parts.append(pd.read_csv(_va0, low_memory=False, parse_dates=["saledate"]))
+    df_raw = pd.concat(_parts, ignore_index=True); MODE = "bulldozer"
+
+# (B) Otherwise download via the Kaggle API
+if MODE is None and KAGGLE_CREDS:
     try:
         import subprocess, zipfile, glob
         os.makedirs("/tmp/bulldozer", exist_ok=True)
@@ -177,6 +195,14 @@ else:
     for c in TEXT_COLS:
         df[c] = df[c].fillna(df[c].mode().iloc[0] if len(df[c].mode()) > 0 else "unknown")
     df_train, df_valid = train_test_split(df, test_size=0.2, random_state=42)
+
+# --- Cap so every modelling row has a Jev answer (keeps Jev cost ~$0.01) ---
+_budget = int(JEV_ROW_CAP)
+if len(df_train) + len(df_valid) > _budget:
+    _ntr = min(len(df_train), int(_budget * 0.8)); _nva = min(len(df_valid), _budget - _ntr)
+    if len(df_train) > _ntr: df_train = df_train.sample(n=_ntr, random_state=42)
+    if len(df_valid) > _nva: df_valid = df_valid.sample(n=_nva, random_state=42)
+    print(f"Capped to {len(df_train)} train + {len(df_valid)} valid rows (Jev budget {_budget})")
 
 y_train_log = np.log1p(df_train[TARGET].values)
 y_valid_log = np.log1p(df_valid[TARGET].values)
