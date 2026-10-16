@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/royam0820/Jev-Meetup/blob/master/tabular_jev_hybrid/jev_tabular_hybrid.ipynb)
+# # [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/royam0820/Jev-Meetup/blob/main/tabular_jev_hybrid/jev_tabular_hybrid.ipynb)
 # 
 # **Run on the real `bluebook-for-bulldozers` data (fastai ch.9):** click the badge, accept the
 # competition rules on Kaggle, then upload your `kaggle.json` when the notebook prompts you
@@ -104,11 +104,17 @@ if KAGGLE_CREDS:
         for _z in glob.glob("/tmp/bulldozer/*.zip"):
             with zipfile.ZipFile(_z) as zf:
                 zf.extractall("/tmp/bulldozer")
-        if os.path.exists("/tmp/bulldozer/TrainAndValid.csv"):
-            df_raw = pd.read_csv("/tmp/bulldozer/TrainAndValid.csv", low_memory=False, parse_dates=["saledate"])
-            MODE = "bulldozer"
+        cand, tr, va = ("/tmp/bulldozer/TrainAndValid.csv",
+                        "/tmp/bulldozer/Train.csv", "/tmp/bulldozer/Valid.csv")
+        if os.path.exists(cand):
+            df_raw = pd.read_csv(cand, low_memory=False, parse_dates=["saledate"]); MODE = "bulldozer"
+        elif os.path.exists(tr):
+            parts = [pd.read_csv(tr, low_memory=False, parse_dates=["saledate"])]
+            if os.path.exists(va):
+                parts.append(pd.read_csv(va, low_memory=False, parse_dates=["saledate"]))
+            df_raw = pd.concat(parts, ignore_index=True); MODE = "bulldozer"
         else:
-            print("! Kaggle download returned no TrainAndValid.csv (rules accepted? creds valid?) - falling back")
+            print("! Kaggle download returned no usable CSV (rules accepted? creds valid?) - falling back")
     except Exception as _e:
         print("bulldozer load failed:", _e)
 
