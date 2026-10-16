@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# <a href="https://colab.research.google.com/github/royam0820/Jev-Meetup/blob/main/tabular_jev_hybrid/jev_tabular_hybrid.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
 # # [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/royam0820/Jev-Meetup/blob/main/tabular_jev_hybrid/jev_tabular_hybrid.ipynb)
 # 
 # **Run on the real `bluebook-for-bulldozers` data (fastai ch.9):** click the badge, accept the
@@ -17,7 +19,7 @@
 
 # ## 1. Setup & Configuration
 
-# In[1]:
+# In[17]:
 
 
 import os, json, time, warnings, math
@@ -51,8 +53,16 @@ JEV_ROW_CAP = 1500
 JEV_THREADS = 8
 JEV_RETRIES = 3
 
+# Retrieve API key from environment or Colab secrets fallback
 API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-assert API_KEY, "OPENROUTER_API_KEY not set"
+if not API_KEY:
+    try:
+        from google.colab import userdata
+        API_KEY = userdata.get("OPENROUTER_API_KEY")
+    except Exception:
+        pass
+
+assert API_KEY, "OPENROUTER_API_KEY not set. Please set it in your environment variables or Colab Secrets."
 
 # Portable output dir (override with JEV_OUT_DIR)
 OUT_DIR = os.environ.get("JEV_OUT_DIR", "./jev_tabular_out")
@@ -63,19 +73,20 @@ print(f"Config: model={JEV_MODEL}, row_cap={JEV_ROW_CAP}, threads={JEV_THREADS}"
 
 # ## 2. Load & Clean Data
 
-# In[2]:
+# In[19]:
 
 
 # Try Kaggle bulldozer first, fall back to UCI automobile
+import pandas as pd, numpy as np
 # --- Colab / Kaggle setup: Colab Secrets first, kaggle.json fallback -----
-import importlib.util, subprocess, sys, shutil, pathlib
+import importlib.util, subprocess, sys, shutil, pathlib, urllib.request, os, json
 IN_COLAB = "google.colab" in str(globals().get("get_ipython", lambda: "")())
 _kdir   = pathlib.Path.home() / ".kaggle"
 _kjson  = _kdir / "kaggle.json"
 _ktoken = _kdir / "access_token"
 
 if IN_COLAB and not (_kjson.exists() or _ktoken.exists()):
-    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "kaggle"], check=False)
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", "kaggle", "--no-deps"], check=False)
     from google.colab import userdata
     def _secret(name):
         try:
@@ -92,7 +103,7 @@ if IN_COLAB and not (_kjson.exists() or _ktoken.exists()):
         _kjson.write_text(raw); os.chmod(_kjson, 0o600); print("Kaggle auth: legacy kaggle.json <- secret")
     elif raw and raw.startswith("KGAT"):                   # new-style API token
         _ktoken.write_text(raw); os.chmod(_ktoken, 0o600); print("Kaggle auth: new API token -> access_token")
-    elif raw and uname:                                    # plain legacy key + username
+    elif raw and uname:
         _kjson.write_text(json.dumps({"username": uname, "key": raw})); os.chmod(_kjson, 0o600)
         print("Kaggle auth: username+key -> kaggle.json")
     elif raw and raw.count(":") == 1:                      # "user:key"
@@ -118,7 +129,25 @@ FALLBACK_CANDIDATES = [
 FALLBACK_PATH = next((p for p in FALLBACK_CANDIDATES if os.path.exists(p)), FALLBACK_CANDIDATES[0])
 
 MODE = None
-if KAGGLE_CREDS:
+import glob as _glob, zipfile as _zip
+# (A) Manually uploaded zip wins (drop bluebook-for-bulldozers.zip in /content)
+for _z in _glob.glob("/content/*ulldozer*.zip") + _glob.glob("/tmp/*ulldozer*.zip"):
+    os.makedirs("/tmp/bulldozer", exist_ok=True)
+    with _zip.ZipFile(_z) as _zf:
+        _zf.extractall("/tmp/bulldozer")
+    print("Using manually uploaded zip:", _z); break
+_cand0, _tr0, _va0 = ("/tmp/bulldozer/TrainAndValid.csv",
+                      "/tmp/bulldozer/Train.csv", "/tmp/bulldozer/Valid.csv")
+if os.path.exists(_cand0):
+    df_raw = pd.read_csv(_cand0, low_memory=False, parse_dates=["saledate"]); MODE = "bulldozer"
+elif os.path.exists(_tr0):
+    _parts = [pd.read_csv(_tr0, low_memory=False, parse_dates=["saledate"])]
+    if os.path.exists(_va0):
+        _parts.append(pd.read_csv(_va0, low_memory=False, parse_dates=["saledate"]))
+    df_raw = pd.concat(_parts, ignore_index=True); MODE = "bulldozer"
+
+# (B) Otherwise download via the Kaggle API
+if MODE is None and KAGGLE_CREDS:
     try:
         import subprocess, zipfile, glob
         os.makedirs("/tmp/bulldozer", exist_ok=True)
@@ -145,6 +174,22 @@ if KAGGLE_CREDS:
         print("bulldozer load failed:", _e)
 
 if MODE is None:
+    # Download the fallback dataset from UCI if it doesn't exist locally
+    if not os.path.exists(FALLBACK_PATH):
+        try:
+            os.makedirs(os.path.dirname(FALLBACK_PATH), exist_ok=True)
+        except Exception:
+            pass
+        print(f"Downloading fallback dataset to {FALLBACK_PATH}...")
+        uci_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.data"
+        try:
+            urllib.request.urlretrieve(uci_url, FALLBACK_PATH)
+        except Exception as e:
+            # If nested folders fail, write to current directory
+            FALLBACK_PATH = "./imports-85.data"
+            print(f"Nested save failed, saving to {FALLBACK_PATH} instead...")
+            urllib.request.urlretrieve(uci_url, FALLBACK_PATH)
+
     UCI_COLS = [
         "symboling","normalized_losses","make","fuel_type","aspiration","num_of_doors",
         "body_style","drive_wheels","engine_location","wheel_base","length","width",
@@ -157,7 +202,7 @@ if MODE is None:
 print(f"▶ MODE = {MODE}  |  shape = {df_raw.shape}")
 
 
-# In[3]:
+# In[21]:
 
 
 # Clean
@@ -185,6 +230,14 @@ else:
         df[c] = df[c].fillna(df[c].mode().iloc[0] if len(df[c].mode()) > 0 else "unknown")
     df_train, df_valid = train_test_split(df, test_size=0.2, random_state=42)
 
+# --- Cap so every modelling row has a Jev answer (keeps Jev cost ~$0.01) ---
+_budget = int(JEV_ROW_CAP)
+if len(df_train) + len(df_valid) > _budget:
+    _ntr = min(len(df_train), int(_budget * 0.8)); _nva = min(len(df_valid), _budget - _ntr)
+    if len(df_train) > _ntr: df_train = df_train.sample(n=_ntr, random_state=42)
+    if len(df_valid) > _nva: df_valid = df_valid.sample(n=_nva, random_state=42)
+    print(f"Capped to {len(df_train)} train + {len(df_valid)} valid rows (Jev budget {_budget})")
+
 y_train_log = np.log1p(df_train[TARGET].values)
 y_valid_log = np.log1p(df_valid[TARGET].values)
 
@@ -194,7 +247,7 @@ print(f"Target: {TARGET}, Text cols: {TEXT_COLS}")
 
 # ## 3. Baseline Models
 
-# In[4]:
+# In[22]:
 
 
 def prepare_baseline_features(df_tr, df_va, text_cols, target):
@@ -238,7 +291,7 @@ def rmsle_from_log(y_true_log, y_pred_log):
     return math.sqrt(mean_squared_error(y_true_log, y_pred_log))
 
 
-# In[5]:
+# In[23]:
 
 
 # Random Forest baseline
@@ -249,7 +302,7 @@ rf_rmsle = rmsle_from_log(y_valid_log, rf_pred)
 print(f"RandomForest baseline RMSLE: {rf_rmsle:.4f}")
 
 
-# In[6]:
+# In[24]:
 
 
 # HistGradientBoosting baseline
@@ -260,7 +313,7 @@ hgb_rmsle = rmsle_from_log(y_valid_log, hgb_pred)
 print(f"HistGradientBoosting baseline RMSLE: {hgb_rmsle:.4f}")
 
 
-# In[7]:
+# In[25]:
 
 
 # XGBoost baseline (if available)
@@ -275,7 +328,7 @@ if HAS_XGB:
 
 # ## 4. Jev Feature Extraction
 
-# In[8]:
+# In[26]:
 
 
 def jev_call(row_dict, retries=JEV_RETRIES):
@@ -288,18 +341,9 @@ def jev_call(row_dict, retries=JEV_RETRIES):
         "questions": {
             "category": {
                 "type": "choice",
-                "instructions": "What kind of item is this?",
+                "instructions": "What kind of heavy equipment is this?",
                 "criteria": {
-                    "sedan": "A standard sedan/saloon car",
-                    "coupe": "A sporty two-door coupe",
-                    "suv": "An SUV or crossover",
-                    "wagon": "A station wagon or estate",
-                    "hatchback": "A compact hatchback",
-                    "convertible": "A convertible/cabriolet",
-                    "truck": "A pickup truck or commercial vehicle",
-                    "luxury": "A luxury/premium vehicle",
-                    "sports": "A dedicated sports car",
-                    "economy": "An economy/budget vehicle"
+                    "earthmoving": "Excavators, dozers, loaders, scrapers", "lifting": "Cranes, telehandlers, forklifts", "compaction": "Rollers and compactors", "paving": "Pavers, profilers, road equipment", "hauling": "Dump trucks and haulers", "agriculture": "Tractors and ag equipment", "attachment": "Attachments and implements", "other": "Other heavy equipment"
                 }
             },
             "size_class": {
@@ -351,14 +395,14 @@ def jev_call(row_dict, retries=JEV_RETRIES):
     return None, 0.0
 
 
-# In[9]:
+# In[27]:
 
 
 # Run Jev on all rows (capped)
 all_rows = pd.concat([df_train, df_valid]).head(JEV_ROW_CAP)
 # Only send text columns + a few key numerics for context
 context_cols = TEXT_COLS.copy()
-for c in ["curb_weight", "engine_size", "horsepower", "wheel_base", "length", "width"]:
+for c in ["YearMade", "MachineHoursCurrentMeter", "curb_weight", "engine_size", "horsepower"]:
     if c in all_rows.columns:
         context_cols.append(c)
 context_cols = [c for c in context_cols if c in all_rows.columns]
@@ -395,7 +439,7 @@ print(f"Jev complete: {len(jev_results)} ok, {failures} failures, {elapsed:.1f}s
 
 # ## 5. Build Jev Features & Hybrid Model
 
-# In[10]:
+# In[28]:
 
 
 def extract_jev_features(answers):
@@ -452,7 +496,7 @@ print(f"Jev features: {len(jev_feature_names)} columns")
 print(df_jev.head())
 
 
-# In[11]:
+# In[29]:
 
 
 # Combine baseline + Jev features
@@ -463,7 +507,7 @@ hybrid_feature_names = feature_names + jev_feature_names
 print(f"Hybrid feature matrix: train={X_train_jev.shape}, valid={X_valid_jev.shape}")
 
 
-# In[12]:
+# In[30]:
 
 
 # Hybrid RF
@@ -492,7 +536,7 @@ if HAS_XGB:
 
 # ## 6. Jev-Only Baseline (No Training)
 
-# In[13]:
+# In[31]:
 
 
 # Map value_tier score → price via train-set quantiles
@@ -530,7 +574,7 @@ print(f"Jev-only (no training) RMSLE: {jev_only_rmsle:.4f}")
 
 # ## 7. Results & Visualization
 
-# In[14]:
+# In[32]:
 
 
 # Build comparison table
@@ -577,7 +621,7 @@ print(f"Jev latency: {elapsed:.1f}s for {len(jev_results)} calls")
 print("="*60)
 
 
-# In[15]:
+# In[33]:
 
 
 # Save results.json
@@ -586,7 +630,7 @@ with open(os.path.join(OUT_DIR, "results.json"), "w") as f:
 print(f"✓ results.json saved")
 
 
-# In[16]:
+# In[36]:
 
 
 # Chart
@@ -636,10 +680,14 @@ chart_path = os.path.join(OUT_DIR, "chart.png")
 plt.savefig(chart_path, dpi=150)
 print(f"✓ chart.png saved")
 
+# Visualize the saved chart directly in the notebook output
+from IPython.display import Image, display
+display(Image(chart_path))
+
 
 # ## 8. Conclusions
 
-# In[17]:
+# In[35]:
 
 
 summary = f"""# Jev Tabular Hybrid — Results Summary
@@ -672,11 +720,11 @@ summary += f"""
 1. **Hybrid pattern**: Jev semantic features (category, size, market segment, value tier, high-value flag) provide additional signal when combined with traditional ordinal-encoded features.
 2. **Jev-only ceiling**: Without any training, Jev's semantic understanding alone (mapping value_tier/market_segment to train-set price quantiles) achieves RMSLE {jev_only_rmsle:.4f} — showing what zero-shot semantic classification can do.
 3. **Cost**: At ~$0.00001/call, Jev feature extraction is essentially free even at scale.
-4. **What Jev can't replace**: A trained model with access to all numeric features (engine size, horsepower, curb weight, etc.) will always outperform pure semantic classification. Jev adds value as a _feature enrichment_ layer, not a replacement.
+4. **Where Jev helps / doesn't**: on a small labeled sample Jev's semantic features add real signal. On the full 400k-row table a strong model recovers much of it itself, so Jev's edge shrinks as training data grows — it's a feature/label enrichment layer, not a replacement.
 
 ## Caveats
-- **Small dataset**: UCI automobile has only ~{len(df)}  valid rows; results may not generalize.
-- **Bulldozer mode**: For the full fastai ch.9 experience, add Kaggle credentials to `~/.kaggle/kaggle.json`.
+- **Sampled run**: models are trained on a {len(df_train)}-row sample (capped at JEV_ROW_CAP={JEV_ROW_CAP} so every modelled row gets a Jev answer). A full-data baseline is stronger, so Jev's relative gain should shrink as n grows.
+- **Dataset**: {('Kaggle Bluebook for Bulldozers' if MODE == 'bulldozer' else 'UCI Automobile (imports-85)')} — {len(df)} rows loaded, {len(df_train)} train / {len(df_valid)} valid used.
 - **Jev features are deterministic per-call** but may vary across API versions.
 """
 
